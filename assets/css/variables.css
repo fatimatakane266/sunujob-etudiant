@@ -1,0 +1,53 @@
+/* ===== SUNUJOB ÉTUDIANT — Variables CSS ===== */
+/* Palette révisée pour un design moderne & professionnel */
+:root {
+  /* Couleurs principales du logo — révisées pour plus d'impact */
+  --color-primary:        #0F4C8E;  /* Bleu Marine — autorité, confiance */
+  --color-primary-light:  #1E7BC0;  /* Bleu Moyen  — liens, interactivité */
+  --color-primary-dark:   #0A3156;  /* Bleu très sombre — contraste, textes */
+  --color-accent-green:   #00A86B;  /* Vert Vibrante — succès, progression */
+  --color-accent-orange:  #FF8C00;  /* Orange doré vif — CTA, dynamisme */
+  --color-accent-orange-light: #FFB84D; /* Orange clair — hover states */
+
+  /* Fonds */
+  --color-bg:             #F8F9FB;  /* Bleu très léger fond page */
+  --color-bg-alt:         #FFFFFF;  /* Blanc pur sections */
+  --color-white:          #FFFFFF;  /* Blanc pur */
+  --color-border:         #D4E0F0;  /* Bordures bleutées légères */
+  --color-border-light:   #E8F0F8;  /* Bordures très légères */
+
+  /* Textes */
+  --color-text-main:      #0F4C8E;  /* Texte principal bleu marine */
+  --color-text-dark:      #0A3156;  /* Texte très sombre, contraste max */
+  --color-text-muted:     #64748B;  /* Texte secondaire gris bleuté */
+  --color-text-light:     #A0AEC0;  /* Texte discret, labels */
+
+  /* Dégradés puissants */
+  --gradient-primary:     linear-gradient(135deg, #0F4C8E 0%, #1E7BC0 100%);
+  --gradient-primary-r:   linear-gradient(135deg, #1E7BC0 0%, #0F4C8E 100%);
+  --gradient-accent:      linear-gradient(135deg, #00A86B 0%, #FF8C00 100%);
+  --gradient-hero:        linear-gradient(150deg, #0A3156 0%, #0F4C8E 50%, #1E7BC0 100%);
+  --gradient-green:       linear-gradient(135deg, #007A4A 0%, #00A86B 100%);
+  --gradient-orange:      linear-gradient(135deg, #E67E00 0%, #FF8C00 100%);
+  --gradient-modern:      linear-gradient(135deg, #0F4C8E 0%, #1E7BC0 50%, #00A86B 100%);
+
+  /* Shadows — ajustées pour les nouvelles couleurs */
+  --shadow-sm:   0 2px 8px rgba(15, 76, 142, 0.08);
+  --shadow-md:   0 4px 16px rgba(15, 76, 142, 0.12);
+  --shadow-lg:   0 8px 32px rgba(15, 76, 142, 0.18);
+  --shadow-card: 0 2px 12px rgba(15, 76, 142, 0.08);
+  --shadow-hover: 0 12px 48px rgba(15, 76, 142, 0.25);
+
+  /* Spacing & Radius */
+  --radius-sm:   6px;
+  --radius-md:   10px;
+  --radius-lg:   14px;
+  --radius-xl:   20px;
+  --radius-full: 9999px;
+
+  /* États */
+  --color-success: #00A86B;
+  --color-warning: #FF8C00;
+  --color-danger:  #DC2626;
+  --color-info:    #1E7BC0;
+}

@@ -1,0 +1,9 @@
+{
+  "name": "sunujob-etudiant",
+  "version": "1.0.0",
+  "description": "Plateforme de mise en relation etudiants-recruteurs au Senegal",
+  "private": true,
+  "scripts": {
+    "test": "echo \"PHP project - run database/sunujob_db.sql to set up\" && exit 0"
+  }
+}
