@@ -17,15 +17,17 @@ $recruteurId = $_SESSION['user_id'];
 $missionId = isset($_GET['mission']) ? (int)$_GET['mission'] : null;
 $statut = isset($_GET['statut']) ? securiser($_GET['statut']) : '';
 
-// Traitement acceptation/refus
-if (isset($_POST['action']) && isset($_POST['candidature_id'])) {
+// Traitement acceptation/refus/suivi mission
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_POST['candidature_id'])) {
+    exigerCsrfPost('/pages/recruteur/candidatures.php' . ($missionId ? "?mission=$missionId" : ''));
+
     $candId = (int)$_POST['candidature_id'];
     $action = $_POST['action'];
 
-    if (in_array($action, ['acceptee', 'refusee'])) {
+    if (in_array($action, ['acceptee', 'refusee', 'en_cours', 'terminee'])) {
         // Vérifier que la candidature appartient à une de ses missions
         $stmt = $conn->prepare("
-            SELECT c.*, m.recruteur_id
+            SELECT c.*, m.recruteur_id, m.id as mission_id_ref, m.places_disponibles, m.titre as mission_titre
             FROM candidatures c
             JOIN missions m ON c.mission_id = m.id
             WHERE c.id = ? AND m.recruteur_id = ?
@@ -35,22 +37,45 @@ if (isset($_POST['action']) && isset($_POST['candidature_id'])) {
         $cand = $stmt->get_result()->fetch_assoc();
 
         if ($cand) {
+            if ($action === 'acceptee' && !peutAccepterCandidature((int)$cand['mission_id_ref'])) {
+                $_SESSION['flash_message'] = "Impossible d'accepter : toutes les places sont pourvues pour cette mission.";
+                $_SESSION['flash_type'] = 'danger';
+            } else {
             $stmt = $conn->prepare("UPDATE candidatures SET statut = ? WHERE id = ?");
             $stmt->bind_param("si", $action, $candId);
             $stmt->execute();
 
             // Notification à l'étudiant
-            $titre = $action === 'acceptee' ? "Candidature acceptée !" : "Candidature refusée";
-            $message = "Votre candidature a été " . ($action === 'acceptee' ? 'acceptée' : 'refusée') . ".";
+            $messagesNotif = [
+                'acceptee'  => ['Candidature acceptée !', 'Votre candidature a été acceptée.', 'success'],
+                'refusee'   => ['Candidature refusée', 'Votre candidature a été refusée.', 'info'],
+                'en_cours'  => ['Mission en cours', 'Votre mission a démarré. Bon courage !', 'info'],
+                'terminee'  => ['Mission terminée', 'Votre mission est marquée comme terminée.', 'success']
+            ];
+            [$titre, $message, $typeNotif] = $messagesNotif[$action];
             $lien = "/pages/etudiant/mes-candidatures.php";
 
             $stmtNotif = $conn->prepare("INSERT INTO notifications (utilisateur_id, type, titre, message, lien) VALUES (?, ?, ?, ?, ?)");
-            $typeNotif = $action === 'acceptee' ? 'success' : 'info';
             $stmtNotif->bind_param("issss", $cand['etudiant_id'], $typeNotif, $titre, $message, $lien);
             $stmtNotif->execute();
 
-            $_SESSION['flash_message'] = "Candidature " . ($action === 'acceptee' ? 'acceptée' : 'refusée') . " avec succès.";
+            // Fermer la mission si toutes les places sont pourvues
+            if ($action === 'acceptee' && !peutAccepterCandidature((int)$cand['mission_id_ref'])) {
+                $stmtClose = $conn->prepare("UPDATE missions SET statut = 'fermee' WHERE id = ?");
+                $mid = (int)$cand['mission_id_ref'];
+                $stmtClose->bind_param("i", $mid);
+                $stmtClose->execute();
+            }
+
+            $labelsAction = [
+                'acceptee' => 'acceptée',
+                'refusee' => 'refusée',
+                'en_cours' => 'marquée en cours',
+                'terminee' => 'marquée terminée'
+            ];
+            $_SESSION['flash_message'] = "Candidature " . $labelsAction[$action] . " avec succès.";
             $_SESSION['flash_type'] = 'success';
+            }
         }
     }
 
@@ -75,7 +100,7 @@ if ($missionId) {
     $types .= "i";
 }
 
-if ($statut && in_array($statut, ['en_attente', 'acceptee', 'refusee'])) {
+if ($statut && in_array($statut, getStatutsCandidature())) {
     $where .= " AND c.statut = ?";
     $params[] = $statut;
     $types .= "s";
@@ -134,6 +159,8 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
                 <option value="">Tous les statuts</option>
                 <option value="en_attente" <?= $statut === 'en_attente' ? 'selected' : '' ?>>En attente</option>
                 <option value="acceptee" <?= $statut === 'acceptee' ? 'selected' : '' ?>>Acceptées</option>
+                <option value="en_cours" <?= $statut === 'en_cours' ? 'selected' : '' ?>>En cours</option>
+                <option value="terminee" <?= $statut === 'terminee' ? 'selected' : '' ?>>Terminées</option>
                 <option value="refusee" <?= $statut === 'refusee' ? 'selected' : '' ?>>Refusées</option>
             </select>
         </div>
@@ -168,8 +195,8 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
                                         <small class="text-muted"><?= htmlspecialchars($cand['etudiant_email']) ?></small>
                                     </div>
                                 </div>
-                                <span class="badge badge-<?= $cand['statut'] === 'en_attente' ? 'attente' : ($cand['statut'] === 'acceptee' ? 'acceptee' : 'refusee') ?>">
-                                    <?= $cand['statut'] === 'en_attente' ? 'En attente' : ($cand['statut'] === 'acceptee' ? 'Acceptée' : 'Refusée') ?>
+                                <span class="badge badge-<?= badgeClassStatutCandidature($cand['statut']) ?>">
+                                    <?= libelleStatutCandidature($cand['statut']) ?>
                                 </span>
                             </div>
                         </div>
@@ -210,6 +237,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
                             <div class="card-footer bg-white border-0 py-3">
                                 <div class="d-flex gap-2">
                                     <form method="POST" action="" class="flex-grow-1">
+                                        <?= champCsrf() ?>
                                         <input type="hidden" name="candidature_id" value="<?= $cand['id'] ?>">
                                         <input type="hidden" name="action" value="acceptee">
                                         <button type="submit" class="btn btn-success-custom w-100 btn-sm">
@@ -217,10 +245,34 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
                                         </button>
                                     </form>
                                     <form method="POST" action="" class="flex-grow-1">
+                                        <?= champCsrf() ?>
                                         <input type="hidden" name="candidature_id" value="<?= $cand['id'] ?>">
                                         <input type="hidden" name="action" value="refusee">
                                         <button type="submit" class="btn btn-outline-danger w-100 btn-sm">
                                             <i class="fas fa-times me-1"></i>Refuser
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        <?php elseif (in_array($cand['statut'], ['acceptee', 'en_cours'])): ?>
+                            <div class="card-footer bg-white border-0 py-3">
+                                <div class="d-flex gap-2">
+                                    <?php if ($cand['statut'] === 'acceptee'): ?>
+                                        <form method="POST" action="" class="flex-grow-1">
+                                        <?= champCsrf() ?>
+                                            <input type="hidden" name="candidature_id" value="<?= $cand['id'] ?>">
+                                            <input type="hidden" name="action" value="en_cours">
+                                            <button type="submit" class="btn btn-primary-custom w-100 btn-sm">
+                                                <i class="fas fa-play me-1"></i>En cours
+                                            </button>
+                                        </form>
+                                    <?php endif; ?>
+                                    <form method="POST" action="" class="flex-grow-1">
+                                        <?= champCsrf() ?>
+                                        <input type="hidden" name="candidature_id" value="<?= $cand['id'] ?>">
+                                        <input type="hidden" name="action" value="terminee">
+                                        <button type="submit" class="btn btn-success-custom w-100 btn-sm">
+                                            <i class="fas fa-flag-checkered me-1"></i>Terminée
                                         </button>
                                     </form>
                                 </div>

@@ -18,6 +18,8 @@ $stats = [
     'total_candidatures' => 0,
     'en_attente' => 0,
     'acceptees' => 0,
+    'en_cours' => 0,
+    'terminees' => 0,
     'refusees' => 0
 ];
 
@@ -40,6 +42,16 @@ $stmt = $conn->prepare("SELECT COUNT(*) as total FROM candidatures WHERE etudian
 $stmt->bind_param("i", $etudiantId);
 $stmt->execute();
 $stats['refusees'] = $stmt->get_result()->fetch_assoc()['total'];
+
+$stmt = $conn->prepare("SELECT COUNT(*) as total FROM candidatures WHERE etudiant_id = ? AND statut = 'en_cours'");
+$stmt->bind_param("i", $etudiantId);
+$stmt->execute();
+$stats['en_cours'] = $stmt->get_result()->fetch_assoc()['total'];
+
+$stmt = $conn->prepare("SELECT COUNT(*) as total FROM candidatures WHERE etudiant_id = ? AND statut = 'terminee'");
+$stmt->bind_param("i", $etudiantId);
+$stmt->execute();
+$stats['terminees'] = $stmt->get_result()->fetch_assoc()['total'];
 
 // Dernières candidatures
 $stmt = $conn->prepare("
@@ -91,7 +103,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
 <div class="container py-4">
     <!-- Statistiques -->
     <div class="row g-4 mb-4">
-        <div class="col-md-3 col-6">
+        <div class="col-md-4 col-6">
             <div class="stat-card primary">
                 <div class="d-flex justify-content-between align-items-start">
                     <div>
@@ -102,7 +114,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
                 </div>
             </div>
         </div>
-        <div class="col-md-3 col-6">
+        <div class="col-md-4 col-6">
             <div class="stat-card warning">
                 <div class="d-flex justify-content-between align-items-start">
                     <div>
@@ -113,7 +125,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
                 </div>
             </div>
         </div>
-        <div class="col-md-3 col-6">
+        <div class="col-md-4 col-6">
             <div class="stat-card success">
                 <div class="d-flex justify-content-between align-items-start">
                     <div>
@@ -124,8 +136,30 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
                 </div>
             </div>
         </div>
-        <div class="col-md-3 col-6">
+        <div class="col-md-4 col-6">
             <div class="stat-card info">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="stat-value"><?= $stats['en_cours'] ?></div>
+                        <div class="stat-label">En cours</div>
+                    </div>
+                    <i class="fas fa-play-circle stat-icon"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 col-6">
+            <div class="stat-card success">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="stat-value"><?= $stats['terminees'] ?></div>
+                        <div class="stat-label">Terminées</div>
+                    </div>
+                    <i class="fas fa-flag-checkered stat-icon"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 col-6">
+            <div class="stat-card" style="background: linear-gradient(135deg, #991B1B, #DC2626);">
                 <div class="d-flex justify-content-between align-items-start">
                     <div>
                         <div class="stat-value"><?= $stats['refusees'] ?></div>
@@ -182,8 +216,8 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
                                             </td>
                                             <td><small><?= date('d/m/Y', strtotime($cand['created_at'])) ?></small></td>
                                             <td>
-                                                <span class="badge badge-<?= $cand['statut'] === 'en_attente' ? 'attente' : ($cand['statut'] === 'acceptee' ? 'acceptee' : 'refusee') ?>">
-                                                    <?= $cand['statut'] === 'en_attente' ? 'En attente' : ($cand['statut'] === 'acceptee' ? 'Acceptée' : 'Refusée') ?>
+                                                <span class="badge badge-<?= badgeClassStatutCandidature($cand['statut']) ?>">
+                                                    <?= libelleStatutCandidature($cand['statut']) ?>
                                                 </span>
                                             </td>
                                         </tr>
@@ -247,7 +281,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
     <!-- Missions récentes -->
     <div class="mt-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h4><i class="fas fa-fire me-2" style="color: var(--color-accent-orange);"></i>Missions récentes</h4>
+            <h4><i class="fas fa-fire me-2" style="color: var(--color-accent-gold);"></i>Missions récentes</h4>
             <a href="/missions.php" class="btn btn-outline-custom">Voir toutes les missions</a>
         </div>
         <div class="row g-4">

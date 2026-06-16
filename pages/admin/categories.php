@@ -16,6 +16,8 @@ $edition = false;
 $categorie = ['id' => 0, 'nom' => '', 'icone' => 'fa-ellipsis-h'];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
+    exigerCsrfPost('/pages/admin/categories.php');
+
     $action = $_POST['action'];
     $nom = trim($_POST['nom'] ?? '');
     $icone = trim($_POST['icone'] ?? 'fa-ellipsis-h');
@@ -91,7 +93,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
                 <h1>Gestion des catégories</h1>
                 <p class="mb-0 text-white-50">Ajouter, modifier ou supprimer les catégories de mission.</p>
             </div>
-            <a href="/pages/admin/dashboard.php" class="btn btn-outline-custom"><i class="fas fa-arrow-left me-2"></i>Retour au dashboard</a>
+            <a href="/pages/admin/dashboard.php" class="btn btn-outline-header"><i class="fas fa-arrow-left me-2"></i>Retour au dashboard</a>
         </div>
     </div>
 </div>
@@ -109,6 +111,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
             <div class="card-dashboard p-4">
                 <h5><?= $edition ? 'Modifier la catégorie' : 'Ajouter une catégorie' ?></h5>
                 <form method="post">
+                    <?= champCsrf() ?>
                     <input type="hidden" name="action" value="<?= $edition ? 'update' : 'add' ?>">
                     <input type="hidden" name="categorie_id" value="<?= htmlspecialchars($categorie['id']) ?>">
                     <div class="mb-3">
@@ -148,6 +151,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
                                     <td class="text-end">
                                         <a href="/pages/admin/categories.php?edit=<?= htmlspecialchars($cat['id']) ?>" class="btn btn-sm btn-outline-custom">Modifier</a>
                                         <form method="post" class="d-inline ms-2" onsubmit="return confirm('Supprimer cette catégorie ?');">
+                                            <?= champCsrf() ?>
                                             <input type="hidden" name="action" value="delete">
                                             <input type="hidden" name="categorie_id" value="<?= htmlspecialchars($cat['id']) ?>">
                                             <button type="submit" class="btn btn-sm btn-danger">Supprimer</button>

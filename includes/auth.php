@@ -117,6 +117,10 @@ function inscrire($data) {
         $erreurs[] = "Le rôle est obligatoire.";
     }
 
+    if ($data['role'] === 'etudiant' && !estEmailScolaire($data['email'] ?? '')) {
+        $erreurs[] = "Vous n'êtes pas étudiant. Veuillez utiliser une adresse email scolaire (ex : @etu.ucad.sn, @edu.sn).";
+    }
+
     // Vérifier si l'email existe déjà
     $email = securiser($data['email']);
     $stmt = $conn->prepare("SELECT id FROM utilisateurs WHERE email = ?");
@@ -185,6 +189,13 @@ function connecter($email, $motDePasse) {
         return ['succes' => false, 'erreur' => "Email ou mot de passe incorrect."];
     }
 
+    if ($user['role'] === 'etudiant' && !estEmailScolaire($user['email'])) {
+        return [
+            'succes' => false,
+            'erreur' => "Vous n'êtes pas étudiant. Votre compte doit utiliser une adresse email scolaire (ex : @etu.ucad.sn, @edu.sn)."
+        ];
+    }
+
     // Mettre à jour la dernière connexion
     $conn->query("UPDATE utilisateurs SET last_login = NOW() WHERE id = " . $user['id']);
 
@@ -209,6 +220,93 @@ function deconnecter() {
     session_destroy();
     header('Location: /login.php');
     exit;
+}
+
+/**
+ * Vérifier si l'email est une adresse scolaire (étudiant)
+ * @param string $email
+ * @return bool
+ */
+function estEmailScolaire($email) {
+    $email = strtolower(trim($email));
+
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        return false;
+    }
+
+    $domaine = substr(strrchr($email, '@'), 1);
+
+    if (preg_match('/\.(edu\.sn|ac\.sn|edu)$/', $domaine)) {
+        return true;
+    }
+
+    if (preg_match('/^(etu|etudiant|student)\./i', $domaine)) {
+        return true;
+    }
+
+    $domainesUniversitaires = [
+        'ucad.sn', 'ugb.sn', 'uam.sn', 'univ-thies.sn', 'esp.sn',
+        'estm.sn', 'isep.sn', 'ehtp.sn', 'uasz.sn', 'uvs.sn', 'universite.sn'
+    ];
+
+    return in_array($domaine, $domainesUniversitaires, true);
+}
+
+/**
+ * Libellé affiché d'un statut de candidature
+ * @param string $statut
+ * @return string
+ */
+function libelleStatutCandidature($statut) {
+    $labels = [
+        'en_attente' => 'En attente',
+        'acceptee'   => 'Acceptée',
+        'refusee'    => 'Refusée',
+        'en_cours'   => 'En cours',
+        'terminee'   => 'Terminée'
+    ];
+    return $labels[$statut] ?? ucfirst($statut);
+}
+
+/**
+ * Classe CSS du badge d'un statut de candidature
+ * @param string $statut
+ * @return string
+ */
+function badgeClassStatutCandidature($statut) {
+    $classes = [
+        'en_attente' => 'attente',
+        'acceptee'   => 'acceptee',
+        'refusee'    => 'refusee',
+        'en_cours'   => 'en-cours',
+        'terminee'   => 'terminee'
+    ];
+    return $classes[$statut] ?? 'attente';
+}
+
+/**
+ * Liste des statuts de candidature valides
+ * @return array
+ */
+function getStatutsCandidature() {
+    return ['en_attente', 'acceptee', 'refusee', 'en_cours', 'terminee'];
+}
+
+/**
+ * Incrémenter le compteur de vues d'une mission
+ * @param int $missionId
+ * @param int|null $recruteurId ID du recruteur propriétaire (ses vues ne sont pas comptées)
+ */
+function incrementerVuesMission($missionId, $recruteurId = null) {
+    global $conn;
+
+    if ($recruteurId !== null && estConnecte() && (int)$_SESSION['user_id'] === (int)$recruteurId) {
+        return;
+    }
+
+    $stmt = $conn->prepare("UPDATE missions SET nb_vues = nb_vues + 1 WHERE id = ?");
+    $stmt->bind_param("i", $missionId);
+    $stmt->execute();
 }
 
 /**
@@ -277,12 +375,128 @@ function genererTokenReset($email) {
 function resetMotDePasse($token, $nouveauMdp) {
     global $conn;
 
-    $token = securiser($token);
+    $token = trim($token);
     $motDePasse = password_hash($nouveauMdp, PASSWORD_BCRYPT);
 
     $stmt = $conn->prepare("UPDATE utilisateurs SET mot_de_passe = ?, token_reset = NULL WHERE token_reset = ?");
     $stmt->bind_param("ss", $motDePasse, $token);
 
     return $stmt->execute() && $stmt->affected_rows > 0;
+}
+
+/**
+ * Générer / récupérer le token CSRF de session
+ * @return string
+ */
+function genererCsrfToken() {
+    if (empty($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+    return $_SESSION['csrf_token'];
+}
+
+/**
+ * Vérifier le token CSRF
+ * @param string|null $token
+ * @return bool
+ */
+function verifierCsrfToken($token) {
+    return isset($_SESSION['csrf_token']) && is_string($token) && hash_equals($_SESSION['csrf_token'], $token);
+}
+
+/**
+ * Champ hidden CSRF pour formulaires
+ * @return string
+ */
+function champCsrf() {
+    return '<input type="hidden" name="csrf_token" value="' . htmlspecialchars(genererCsrfToken()) . '">';
+}
+
+/**
+ * Exiger un token CSRF valide sur les requêtes POST
+ * @param string|null $redirect
+ */
+function exigerCsrfPost($redirect = null) {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && !verifierCsrfToken($_POST['csrf_token'] ?? '')) {
+        $_SESSION['flash_message'] = 'Session expirée ou formulaire invalide. Veuillez réessayer.';
+        $_SESSION['flash_type'] = 'danger';
+        $url = $redirect ?? ($_SERVER['HTTP_REFERER'] ?? '/index.php');
+        header('Location: ' . $url);
+        exit;
+    }
+}
+
+/**
+ * Vérifier si une mission accepte encore des candidatures
+ * @param array $mission
+ * @return bool
+ */
+function missionEstOuverte($mission) {
+    if (($mission['statut'] ?? '') !== 'active') {
+        return false;
+    }
+    if (!empty($mission['date_fin']) && $mission['date_fin'] < date('Y-m-d')) {
+        return false;
+    }
+    return true;
+}
+
+/**
+ * Compter les places occupées sur une mission
+ * @param int $missionId
+ * @return int
+ */
+function compterPlacesOccupees($missionId) {
+    global $conn;
+    $stmt = $conn->prepare("
+        SELECT COUNT(*) as total FROM candidatures
+        WHERE mission_id = ? AND statut IN ('acceptee', 'en_cours', 'terminee')
+    ");
+    $stmt->bind_param("i", $missionId);
+    $stmt->execute();
+    return (int)$stmt->get_result()->fetch_assoc()['total'];
+}
+
+/**
+ * Vérifier s'il reste des places sur une mission
+ * @param int $missionId
+ * @return bool
+ */
+function peutAccepterCandidature($missionId) {
+    global $conn;
+    $stmt = $conn->prepare("SELECT places_disponibles FROM missions WHERE id = ?");
+    $stmt->bind_param("i", $missionId);
+    $stmt->execute();
+    $row = $stmt->get_result()->fetch_assoc();
+    if (!$row) {
+        return false;
+    }
+    return compterPlacesOccupees($missionId) < (int)$row['places_disponibles'];
+}
+
+/**
+ * Valider un fichier uploadé
+ * @param array $file $_FILES entry
+ * @param array $extensionsAutorisees
+ * @param int $tailleMaxOctets
+ * @param string $libelle
+ * @return string|null Message d'erreur ou null si OK
+ */
+function validerFichierUpload($file, array $extensionsAutorisees, $tailleMaxOctets, $libelle = 'Fichier') {
+    if (!isset($file) || $file['error'] === UPLOAD_ERR_NO_FILE) {
+        return null;
+    }
+    if ($file['error'] !== UPLOAD_ERR_OK) {
+        return "$libelle : erreur lors du téléversement.";
+    }
+    if ($file['size'] > $tailleMaxOctets) {
+        $mo = round($tailleMaxOctets / 1048576, 1);
+        return "$libelle : taille maximale {$mo} Mo dépassée.";
+    }
+    $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+    if (!in_array($ext, $extensionsAutorisees, true)) {
+        return "$libelle : format non autorisé.";
+    }
+    return null;
 }
 ?>

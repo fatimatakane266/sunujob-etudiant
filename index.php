@@ -59,12 +59,11 @@ if ($r) { while ($row = $r->fetch_assoc()) $categories[] = $row; }
         <div class="row align-items-center g-5">
             <div class="col-lg-6">
                 <!-- Badge -->
-                <span class="d-inline-block mb-3 px-3 py-1 rounded-pill"
-                      style="background:rgba(245,166,35,0.18);color:#F5A623;font-size:0.82rem;font-weight:600;border:1px solid rgba(245,166,35,0.3);">
+                <span class="hero-badge">
                     <i class="fas fa-bolt me-1"></i> Plateforme #1 pour étudiants au Sénégal
                 </span>
 
-                <h1>Trouvez des <span class="accent-orange">missions</span> adaptées à vos <span class="accent-green">études</span></h1>
+                <h1>Trouvez des <span class="accent-gold">missions</span> adaptées à vos <span class="accent-green">études</span></h1>
 
                 <p class="subtitle">
                     SunuJob Étudiant connecte les étudiants sénégalais aux opportunités temporaires :
@@ -72,11 +71,10 @@ if ($r) { while ($row = $r->fetch_assoc()) $categories[] = $row; }
                 </p>
 
                 <div class="d-flex flex-wrap gap-3 mb-4">
-                    <a href="/register.php?role=etudiant" class="btn btn-cta btn-lg">
+                    <a href="/register.php?role=etudiant" class="btn btn-cta-etudiant btn-lg">
                         <i class="fas fa-user-graduate me-2"></i>Je suis étudiant
                     </a>
-                    <a href="/register.php?role=recruteur" class="btn btn-outline-custom btn-lg"
-                       style="border-color:rgba(255,255,255,0.5);color:#fff;">
+                    <a href="/register.php?role=recruteur" class="btn btn-cta btn-lg hero-outline-btn">
                         <i class="fas fa-building me-2"></i>Je suis recruteur
                     </a>
                 </div>
@@ -100,15 +98,14 @@ if ($r) { while ($row = $r->fetch_assoc()) $categories[] = $row; }
                 </div>
             </div>
 
-            <div class="col-lg-6 d-none d-lg-block">
+            <div class="col-lg-6 d-none d-lg-block position-relative">
                 <div class="hero-image">
                     <img src="assets/images/Image collée.png"
                          alt="Étudiants au travail" class="img-fluid w-100" style="height:420px;object-fit:cover;">
                 </div>
 
                 <!-- Floating card -->
-                <div class="position-absolute d-none d-xl-block"
-                     style="bottom:20px;left:-20px;background:#fff;border-radius:12px;padding:14px 18px;box-shadow:0 8px 30px rgba(27,63,114,0.25);min-width:200px;">
+                <div class="hero-floating-card d-none d-xl-block">
                     <div class="d-flex align-items-center gap-3">
                         <div style="width:44px;height:44px;background:var(--gradient-accent);border-radius:50%;display:flex;align-items:center;justify-content:center;">
                             <i class="fas fa-check-circle text-white fs-5"></i>
@@ -129,28 +126,28 @@ if ($r) { while ($row = $r->fetch_assoc()) $categories[] = $row; }
     <div class="container">
         <div class="row g-4 text-center">
             <div class="col-6 col-md-3">
-                <div class="stat-icon-wrap" style="background:rgba(27,63,114,0.08);">
+                <div class="stat-icon-wrap stat-icon-primary">
                     <i class="fas fa-briefcase" style="color:var(--color-primary);"></i>
                 </div>
                 <span class="stat-number d-block"><?= number_format($stats['missions']) ?></span>
                 <span class="stat-label">Missions actives</span>
             </div>
             <div class="col-6 col-md-3">
-                <div class="stat-icon-wrap" style="background:rgba(45,155,78,0.1);">
+                <div class="stat-icon-wrap stat-icon-green">
                     <i class="fas fa-user-graduate" style="color:var(--color-accent-green);"></i>
                 </div>
                 <span class="stat-number d-block"><?= number_format($stats['etudiants']) ?></span>
                 <span class="stat-label">Étudiants inscrits</span>
             </div>
             <div class="col-6 col-md-3">
-                <div class="stat-icon-wrap" style="background:rgba(46,109,180,0.1);">
+                <div class="stat-icon-wrap stat-icon-blue">
                     <i class="fas fa-building" style="color:var(--color-primary-light);"></i>
                 </div>
                 <span class="stat-number d-block"><?= number_format($stats['recruteurs']) ?></span>
                 <span class="stat-label">Recruteurs</span>
             </div>
             <div class="col-6 col-md-3">
-                <div class="stat-icon-wrap" style="background:rgba(245,166,35,0.12);">
+                <div class="stat-icon-wrap stat-icon-orange">
                     <i class="fas fa-paper-plane" style="color:var(--color-accent-orange);"></i>
                 </div>
                 <span class="stat-number d-block"><?= number_format($stats['candidatures']) ?></span>
@@ -307,7 +304,7 @@ if ($r) { while ($row = $r->fetch_assoc()) $categories[] = $row; }
                     <div class="card-dashboard p-4 h-100">
                         <div class="d-flex mb-3">
                             <?php for ($i = 0; $i < 5; $i++): ?>
-                                <i class="fas fa-star" style="color:var(--color-accent-orange);font-size:0.85rem;"></i>
+                                <i class="fas fa-star" style="color:var(--color-accent-gold);font-size:0.85rem;"></i>
                             <?php endfor; ?>
                         </div>
                         <p class="mb-4" style="color:var(--color-text-muted);font-size:0.9rem;line-height:1.7;">
@@ -334,18 +331,18 @@ if ($r) { while ($row = $r->fetch_assoc()) $categories[] = $row; }
 <section class="py-5">
     <div class="container">
         <div class="rounded-4 text-white text-center p-5" style="background:var(--gradient-hero);position:relative;overflow:hidden;">
-            <div style="position:absolute;top:-60px;right:-60px;width:250px;height:250px;background:radial-gradient(circle,rgba(245,166,35,0.2) 0%,transparent 70%);"></div>
+            <div class="cta-banner-glow"></div>
             <div style="position:relative;z-index:1;">
                 <h2 style="color:#fff;font-size:2rem;margin-bottom:1rem;">Prêt à commencer ?</h2>
                 <p class="mb-4" style="opacity:0.88;font-size:1.05rem;">
                     Rejoignez des milliers d'étudiants et recruteurs au Sénégal.
                 </p>
                 <div class="d-flex justify-content-center gap-3 flex-wrap">
-                    <a href="/register.php?role=etudiant" class="btn btn-cta btn-lg">
+                    <a href="/register.php?role=etudiant" class="btn btn-cta-etudiant btn-lg">
                         <i class="fas fa-user-graduate me-2"></i>Inscription étudiant
                     </a>
                     <a href="/register.php?role=recruteur"
-                       class="btn btn-lg" style="border:2px solid rgba(255,255,255,0.5);color:#fff;border-radius:var(--radius-md);">
+                       class="btn btn-lg hero-outline-btn">
                         <i class="fas fa-building me-2"></i>Inscription recruteur
                     </a>
                 </div>

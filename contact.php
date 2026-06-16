@@ -74,19 +74,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <h5 class="mb-4">Nos coordonnées</h5>
                         <div class="mb-3">
                             <div class="d-flex align-items-center mb-2">
-                                <i class="fas fa-envelope me-3" style="color: var(--color-accent-orange); width: 24px;"></i>
+                                <i class="fas fa-envelope me-3" style="color: var(--color-accent-gold); width: 24px;"></i>
                                 <span>contact@sunujob.sn</span>
                             </div>
                         </div>
                         <div class="mb-3">
                             <div class="d-flex align-items-center mb-2">
-                                <i class="fas fa-phone me-3" style="color: var(--color-accent-orange); width: 24px;"></i>
+                                <i class="fas fa-phone me-3" style="color: var(--color-accent-gold); width: 24px;"></i>
                                 <span>+221 77 123 45 67</span>
                             </div>
                         </div>
                         <div class="mb-3">
                             <div class="d-flex align-items-center mb-2">
-                                <i class="fas fa-map-marker-alt me-3" style="color: var(--color-accent-orange); width: 24px;"></i>
+                                <i class="fas fa-map-marker-alt me-3" style="color: var(--color-accent-gold); width: 24px;"></i>
                                 <span>Dakar, Sénégal</span>
                             </div>
                         </div>

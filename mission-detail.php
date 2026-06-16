@@ -18,7 +18,8 @@ if (!$missionId) {
 $stmt = $conn->prepare("
     SELECT m.*, c.nom as categorie_nom, c.icone,
            u.id as recruteur_id, u.nom as recruteur_nom, u.prenom as recruteur_prenom, u.email as recruteur_email,
-           pr.nom_structure, pr.type_recruteur, pr.description as recruteur_description, pr.logo
+           pr.nom_structure, pr.type_recruteur, pr.description as recruteur_description, pr.logo,
+           COALESCE(m.nb_vues, 0) as nb_vues
     FROM missions m
     JOIN categories c ON m.categorie_id = c.id
     JOIN utilisateurs u ON m.recruteur_id = u.id
@@ -33,6 +34,14 @@ if (!$mission) {
     header('Location: /missions.php');
     exit;
 }
+
+// Incrémenter le compteur de vues (sauf pour le recruteur propriétaire)
+incrementerVuesMission($missionId, (int)$mission['recruteur_id']);
+
+$stmtVues = $conn->prepare("SELECT COALESCE(nb_vues, 0) as nb_vues FROM missions WHERE id = ?");
+$stmtVues->bind_param("i", $missionId);
+$stmtVues->execute();
+$mission['nb_vues'] = (int)$stmtVues->get_result()->fetch_assoc()['nb_vues'];
 
 $pageTitle = htmlspecialchars($mission['titre']) . ' - SunuJob Étudiant';
 $pageActive = 'missions';
@@ -54,12 +63,16 @@ $messageSent = false;
 $erreurCandidature = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && estConnecte() && aRole('etudiant') && !$dejaPostule) {
+    exigerCsrfPost('/mission-detail.php?id=' . $missionId);
+
     $messageMotivation = trim($_POST['message_motivation'] ?? '');
 
-    if (empty($messageMotivation)) {
+    if (!missionEstOuverte($mission)) {
+        $erreurCandidature = "Cette mission n'accepte plus de candidatures.";
+    } elseif (empty($messageMotivation)) {
         $erreurCandidature = "Veuillez rédiger un message de motivation.";
     } else {
-        $messageMotivation = securiser($messageMotivation);
+        $messageMotivation = trim($messageMotivation);
 
         $stmt = $conn->prepare("INSERT INTO candidatures (etudiant_id, mission_id, message_motivation) VALUES (?, ?, ?)");
         $stmt->bind_param("iis", $_SESSION['user_id'], $missionId, $messageMotivation);
@@ -133,6 +146,12 @@ require_once 'includes/header.php';
                         <i class="fas fa-calendar"></i>
                         <span>Publié le <?= date('d/m/Y', strtotime($mission['created_at'])) ?></span>
                     </div>
+                    <?php if (estConnecte() && aRole('recruteur') && (int)$_SESSION['user_id'] === (int)$mission['recruteur_id']): ?>
+                        <div class="mission-meta-item">
+                            <i class="fas fa-eye"></i>
+                            <span><?= number_format($mission['nb_vues'], 0, ',', ' ') ?> vue<?= $mission['nb_vues'] > 1 ? 's' : '' ?></span>
+                        </div>
+                    <?php endif; ?>
                 </div>
 
                 <!-- Rémunération -->
@@ -215,8 +234,8 @@ require_once 'includes/header.php';
                         <div class="text-center">
                             <p class="mb-2"><i class="fas fa-check-circle text-success fa-2x mb-3"></i></p>
                             <p class="fw-semibold">Vous avez déjà postulé</p>
-                            <span class="badge badge-<?= $candidature['statut'] === 'en_attente' ? 'attente' : ($candidature['statut'] === 'acceptee' ? 'acceptee' : 'refusee') ?>">
-                                <?= $candidature['statut'] === 'en_attente' ? 'En attente' : ($candidature['statut'] === 'acceptee' ? 'Acceptée' : 'Refusée') ?>
+                            <span class="badge badge-<?= badgeClassStatutCandidature($candidature['statut']) ?>">
+                                <?= libelleStatutCandidature($candidature['statut']) ?>
                             </span>
                             <hr>
                             <a href="/pages/etudiant/mes-candidatures.php" class="btn btn-outline-custom w-100">
@@ -231,12 +250,13 @@ require_once 'includes/header.php';
                         <?php endif; ?>
 
                         <form method="POST" action="">
+                            <?= champCsrf() ?>
                             <h5 class="mb-3"><i class="fas fa-paper-plane me-2"></i>Postuler</h5>
                             <div class="mb-3">
                                 <label class="form-label">Message de motivation</label>
                                 <textarea class="form-control" name="message_motivation" rows="5" required placeholder="Expliquez pourquoi vous êtes le candidat idéal pour cette mission..."></textarea>
                             </div>
-                            <button type="submit" class="btn btn-cta w-100">
+                            <button type="submit" class="btn btn-cta-etudiant w-100">
                                 <i class="fas fa-paper-plane me-2"></i>Envoyer ma candidature
                             </button>
                         </form>

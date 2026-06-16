@@ -52,7 +52,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
                 <h1>Gestion des missions</h1>
                 <p class="mb-0 text-white-50">Voir toutes les missions et supprimer les offres abusives.</p>
             </div>
-            <a href="/pages/admin/dashboard.php" class="btn btn-outline-custom"><i class="fas fa-arrow-left me-2"></i>Retour au dashboard</a>
+            <a href="/pages/admin/dashboard.php" class="btn btn-outline-header"><i class="fas fa-arrow-left me-2"></i>Retour au dashboard</a>
         </div>
     </div>
 </div>

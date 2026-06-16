@@ -21,7 +21,7 @@ $where = "c.etudiant_id = ?";
 $params = [$etudiantId];
 $types = "i";
 
-if ($statut && in_array($statut, ['en_attente', 'acceptee', 'refusee'])) {
+if ($statut && in_array($statut, getStatutsCandidature())) {
     $where .= " AND c.statut = ?";
     $params[] = $statut;
     $types .= "s";
@@ -48,6 +48,8 @@ $stats = [
     'total' => 0,
     'en_attente' => 0,
     'acceptee' => 0,
+    'en_cours' => 0,
+    'terminee' => 0,
     'refusee' => 0
 ];
 
@@ -96,6 +98,16 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
             </a>
         </div>
         <div class="col-auto">
+            <a href="?statut=en_cours" class="btn <?= $statut === 'en_cours' ? 'btn-primary-custom' : 'btn-outline-custom' ?>">
+                En cours <span class="badge bg-primary ms-1"><?= $stats['en_cours'] ?></span>
+            </a>
+        </div>
+        <div class="col-auto">
+            <a href="?statut=terminee" class="btn <?= $statut === 'terminee' ? 'btn-success-custom' : 'btn-outline-custom' ?>">
+                Terminées <span class="badge bg-success ms-1"><?= $stats['terminee'] ?></span>
+            </a>
+        </div>
+        <div class="col-auto">
             <a href="?statut=refusee" class="btn <?= $statut === 'refusee' ? 'btn-primary-custom' : 'btn-outline-custom' ?>">
                 Refusées <span class="badge bg-danger ms-1"><?= $stats['refusee'] ?></span>
             </a>
@@ -109,7 +121,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
             <p class="text-muted mb-4">
                 <?= $statut ? "Aucune candidature avec ce statut." : "Vous n'avez encore postulé à aucune mission." ?>
             </p>
-            <a href="/missions.php" class="btn btn-cta">
+            <a href="/missions.php" class="btn btn-cta-etudiant">
                 <i class="fas fa-search me-2"></i>Rechercher des missions
             </a>
         </div>
@@ -123,8 +135,8 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
                                 <i class="fas <?= htmlspecialchars($cand['icone']) ?> me-1"></i>
                                 <?= htmlspecialchars($cand['categorie_nom']) ?>
                             </span>
-                            <span class="badge badge-<?= $cand['statut'] === 'en_attente' ? 'attente' : ($cand['statut'] === 'acceptee' ? 'acceptee' : 'refusee') ?>">
-                                <?= $cand['statut'] === 'en_attente' ? 'En attente' : ($cand['statut'] === 'acceptee' ? 'Acceptée' : 'Refusée') ?>
+                            <span class="badge badge-<?= badgeClassStatutCandidature($cand['statut']) ?>">
+                                <?= libelleStatutCandidature($cand['statut']) ?>
                             </span>
                         </div>
 

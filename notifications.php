@@ -77,7 +77,7 @@ require_once 'includes/header.php';
             <div>
                 <h1><i class="fas fa-bell me-2"></i>Notifications
                     <?php if ($nbNonLues > 0): ?>
-                        <span class="badge" style="background:var(--color-accent-orange);font-size:0.7rem;vertical-align:middle;"><?= $nbNonLues ?></span>
+                        <span class="badge" style="background:var(--color-accent-gold);font-size:0.7rem;vertical-align:middle;"><?= $nbNonLues ?></span>
                     <?php endif; ?>
                 </h1>
                 <nav aria-label="breadcrumb">
@@ -131,7 +131,7 @@ require_once 'includes/header.php';
                                             <?= htmlspecialchars($notif['titre']) ?>
                                         </strong>
                                         <?php if ($notif['lu'] == 0): ?>
-                                            <span class="badge ms-2" style="background:var(--color-accent-orange);font-size:0.65rem;">Nouveau</span>
+                                            <span class="badge ms-2" style="background:var(--color-accent-gold);font-size:0.65rem;">Nouveau</span>
                                         <?php endif; ?>
                                         <p class="mb-1 mt-1" style="font-size:0.85rem;color:var(--color-text-muted);">
                                             <?= htmlspecialchars($notif['message']) ?>

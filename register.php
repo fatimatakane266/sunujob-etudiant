@@ -74,7 +74,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="auth-container py-4">
         <div class="auth-card" style="max-width: 550px;">
             <div class="logo">
-                <img src="/assets/images/logo.png" alt="SunuJob Étudiant">
+                <img src="/assets/images/logo.png" alt="SunuJob Étudiant"
+                     onerror="this.onerror=null; this.src='/assets/images/logo.svg';">
             </div>
 
             <h2>Créer un compte</h2>
@@ -126,6 +127,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="mb-3">
                     <label for="email" class="form-label">Adresse email *</label>
                     <input type="email" class="form-control" id="email" name="email" value="<?= htmlspecialchars($donnees['email']) ?>" required>
+                    <div class="form-text" id="email_hint" style="<?= $donnees['role'] === 'recruteur' ? 'display:none' : '' ?>">
+                        Utilisez votre email scolaire (ex : prenom.nom@etu.ucad.sn, @edu.sn)
+                    </div>
                 </div>
 
                 <div class="row">
@@ -158,7 +162,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </label>
                 </div>
 
-                <button type="submit" class="btn btn-cta w-100 mb-3">
+                <button type="submit" class="btn btn-cta-etudiant w-100 mb-3" id="submit_btn">
                     <i class="fas fa-user-plus me-2"></i>Créer mon compte
                 </button>
             </form>
@@ -179,10 +183,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         function selectRole(role) {
             document.getElementById('role_input').value = role;
 
-            // Update button states
             document.getElementById('role_etudiant').checked = role === 'etudiant';
             document.getElementById('role_recruteur').checked = role === 'recruteur';
+
+            const emailHint = document.getElementById('email_hint');
+            if (emailHint) {
+                emailHint.style.display = role === 'etudiant' ? '' : 'none';
+            }
+
+            const submitBtn = document.getElementById('submit_btn');
+            if (submitBtn) {
+                submitBtn.classList.remove('btn-cta-etudiant', 'btn-cta');
+                submitBtn.classList.add(role === 'etudiant' ? 'btn-cta-etudiant' : 'btn-cta');
+            }
         }
+
+        selectRole(document.getElementById('role_input').value);
 
         // Password confirmation validation
         document.getElementById('mot_de_passe_confirm').addEventListener('input', function() {

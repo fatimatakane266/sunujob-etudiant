@@ -39,10 +39,10 @@ if (isset($_GET['close']) && is_numeric($_GET['close'])) {
     exit;
 }
 
-// Réouverture
+// Réouverture (uniquement si la date de fin n'est pas dépassée)
 if (isset($_GET['reopen']) && is_numeric($_GET['reopen'])) {
     $missionId = (int)$_GET['reopen'];
-    $stmt = $conn->prepare("UPDATE missions SET statut = 'active' WHERE id = ? AND recruteur_id = ?");
+    $stmt = $conn->prepare("UPDATE missions SET statut = 'active' WHERE id = ? AND recruteur_id = ? AND (date_fin IS NULL OR date_fin >= CURDATE())");
     $stmt->bind_param("ii", $missionId, $recruteurId);
     if ($stmt->execute() && $stmt->affected_rows > 0) {
         $_SESSION['flash_message'] = "Mission réactivée avec succès.";
@@ -108,6 +108,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
                         <th>Catégorie</th>
                         <th>Localisation</th>
                         <th>Statut</th>
+                        <th>Vues</th>
                         <th>Candidatures</th>
                         <th>Date</th>
                         <th>Actions</th>
@@ -134,6 +135,11 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
                             <td>
                                 <span class="badge badge-<?= $mission['statut'] === 'active' ? 'active' : ($mission['statut'] === 'fermee' ? 'fermee' : 'expiree') ?>">
                                     <?= ucfirst($mission['statut']) ?>
+                                </span>
+                            </td>
+                            <td>
+                                <span class="text-muted">
+                                    <i class="fas fa-eye me-1"></i><?= number_format($mission['nb_vues'] ?? 0, 0, ',', ' ') ?>
                                 </span>
                             </td>
                             <td>

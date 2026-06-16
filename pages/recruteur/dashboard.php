@@ -174,6 +174,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
                                     <tr>
                                         <th>Mission</th>
                                         <th>Statut</th>
+                                        <th>Vues</th>
                                         <th>Candidatures</th>
                                     </tr>
                                 </thead>
@@ -187,8 +188,13 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
                                                 <br><small class="text-muted"><?= htmlspecialchars($m['categorie_nom']) ?></small>
                                             </td>
                                             <td>
-                                                <span class="badge badge-<?= $m['statut'] === 'active' ? 'active' : 'fermee' ?>">
+                                                <span class="badge badge-<?= $m['statut'] === 'active' ? 'active' : ($m['statut'] === 'fermee' ? 'fermee' : 'expiree') ?>">
                                                     <?= ucfirst($m['statut']) ?>
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span class="text-muted">
+                                                    <i class="fas fa-eye me-1"></i><?= number_format($m['nb_vues'] ?? 0, 0, ',', ' ') ?>
                                                 </span>
                                             </td>
                                             <td>
@@ -236,8 +242,8 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
                                     <small class="text-muted">pour "<?= htmlspecialchars(substr($c['mission_titre'], 0, 25)) ?>..."</small>
                                 </div>
                                 <div>
-                                    <span class="badge badge-<?= $c['statut'] === 'en_attente' ? 'attente' : ($c['statut'] === 'acceptee' ? 'acceptee' : 'refusee') ?>">
-                                        <?= $c['statut'] === 'en_attente' ? 'En attente' : ($c['statut'] === 'acceptee' ? 'Acceptée' : 'Refusée') ?>
+                                    <span class="badge badge-<?= badgeClassStatutCandidature($c['statut']) ?>">
+                                        <?= libelleStatutCandidature($c['statut']) ?>
                                     </span>
                                 </div>
                             </div>

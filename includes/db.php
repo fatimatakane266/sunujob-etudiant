@@ -64,6 +64,31 @@ if ((int)$adminCount === 0) {
     $conn->query("INSERT INTO utilisateurs (nom, prenom, email, mot_de_passe, telephone, role, statut) VALUES ('Admin', 'SunuJob', 'admin@sunujob.sn', '$adminPassword', '+221770000000', 'admin', 'actif')");
 }
 
+// Colonne compteur de vues sur les missions
+$vuesColumn = $conn->query("SHOW COLUMNS FROM missions LIKE 'nb_vues'");
+if ($vuesColumn && $vuesColumn->num_rows === 0) {
+    $conn->query("ALTER TABLE missions ADD COLUMN nb_vues INT NOT NULL DEFAULT 0 AFTER places_disponibles");
+}
+
+// Statuts candidatures : en_cours et terminee
+$statutCandidatureColumn = $conn->query("SHOW COLUMNS FROM candidatures LIKE 'statut'");
+if ($statutCandidatureColumn && $statutCandidatureColumn->num_rows > 0) {
+    $row = $statutCandidatureColumn->fetch_assoc();
+    if (!str_contains($row['Type'], 'en_cours')) {
+        $conn->query("ALTER TABLE candidatures MODIFY statut ENUM('en_attente','acceptee','refusee','en_cours','terminee') DEFAULT 'en_attente'");
+    }
+}
+
+/**
+ * Fermer automatiquement les missions dont la date de fin est dépassée
+ */
+function fermerMissionsExpirees() {
+    global $conn;
+    $conn->query("UPDATE missions SET statut = 'expiree' WHERE statut = 'active' AND date_fin IS NOT NULL AND date_fin < CURDATE()");
+}
+
+fermerMissionsExpirees();
+
 /**
  * Fonction pour sécuriser les données
  * @param string $data

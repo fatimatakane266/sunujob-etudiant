@@ -62,16 +62,10 @@ $logoPath = file_exists($_SERVER['DOCUMENT_ROOT'] . '/assets/images/logo.png')
 <nav class="navbar navbar-expand-lg navbar-sunujob sticky-top">
     <div class="container">
 
-        <a class="navbar-brand d-flex align-items-center gap-2" href="/index.php" style="max-width:220px;">
+        <a class="navbar-brand" href="/index.php">
             <img src="<?= $logoPath ?>" alt="SunuJob Étudiant"
-                 style="height:42px;"
-                 onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
-            <span style="display:none; color:#fff; font-family:'Poppins',sans-serif; font-size:0.95rem;">
-                <span style="font-weight:600; color:#7EB8F7;">SUNU</span><span style="font-weight:700;">JOB</span>
-            </span>
-            <span style="color:#fff; font-family:'Poppins',sans-serif; font-size:0.9rem; font-weight:700; letter-spacing:0.5px;">
-                <span style="color:#1E7BC0;">SUNU</span><span style="color:#0F4C8E;">JOB</span>
-            </span>
+                 style="height:46px;"
+                 onerror="this.onerror=null; this.src='<?= str_replace('.png', '.svg', $logoPath) ?>';">
         </a>
 
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">

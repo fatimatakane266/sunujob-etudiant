@@ -11,11 +11,8 @@
                             ? '/assets/images/logo.png'
                             : '/assets/images/logo.svg';
                         ?>
-                        <img src="<?= $logoPath ?>" alt="SunuJob Étudiant" style="height:42px;"
-                             onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
-                        <span style="display:none; color:#fff; font-family:'Poppins',sans-serif; font-size:1.3rem; font-weight:700;">
-                            SunuJob <span style="color:#F5A623;">Étudiant</span>
-                        </span>
+                        <img src="<?= $logoPath ?>" alt="SunuJob Étudiant" style="height:46px; filter: brightness(0) invert(1);"
+                             onerror="this.onerror=null; this.src='<?= str_replace('.png', '.svg', $logoPath) ?>';">
                     </div>
                     <p style="color:rgba(255,255,255,0.7); font-size:0.9rem; line-height:1.7;">
                         Plateforme numérique de missions temporaires pour étudiants sénégalais.

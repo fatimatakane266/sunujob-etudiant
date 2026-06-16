@@ -26,7 +26,7 @@ require_once 'includes/header.php';
     <div class="row justify-content-center">
         <div class="col-lg-8">
             <div class="mission-detail-card mb-4">
-                <h2 class="mb-4"><i class="fas fa-bullseye me-2" style="color: var(--color-accent-orange);"></i>Notre Mission</h2>
+                <h2 class="mb-4"><i class="fas fa-bullseye me-2" style="color: var(--color-accent-gold);"></i>Notre Mission</h2>
                 <p class="lead">
                     <strong>SunuJob Étudiant</strong> est une plateforme numérique innovante conçue pour connecter les étudiants sénégalais aux opportunités de missions temporaires.
                 </p>
@@ -70,7 +70,7 @@ require_once 'includes/header.php';
             </div>
 
             <div class="mission-detail-card mb-4">
-                <h2 class="mb-4"><i class="fas fa-lightbulb me-2" style="color: var(--color-accent-orange);"></i>Nos valeurs</h2>
+                <h2 class="mb-4"><i class="fas fa-lightbulb me-2" style="color: var(--color-accent-gold);"></i>Nos valeurs</h2>
                 <div class="row">
                     <div class="col-md-4 mb-3">
                         <div class="step-item p-3">
@@ -100,9 +100,9 @@ require_once 'includes/header.php';
                 <h2 class="mb-4"><i class="fas fa-envelope me-2" style="color: var(--color-primary-light);"></i>Nous contacter</h2>
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <p><i class="fas fa-envelope me-2" style="color: var(--color-accent-orange);"></i>contact@sunujob.sn</p>
-                        <p><i class="fas fa-phone me-2" style="color: var(--color-accent-orange);"></i>+221 77 123 45 67</p>
-                        <p><i class="fas fa-map-marker-alt me-2" style="color: var(--color-accent-orange);"></i>Dakar, Sénégal</p>
+                        <p><i class="fas fa-envelope me-2" style="color: var(--color-accent-gold);"></i>contact@sunujob.sn</p>
+                        <p><i class="fas fa-phone me-2" style="color: var(--color-accent-gold);"></i>+221 77 123 45 67</p>
+                        <p><i class="fas fa-map-marker-alt me-2" style="color: var(--color-accent-gold);"></i>Dakar, Sénégal</p>
                     </div>
                     <div class="col-md-6">
                         <div class="social-links d-flex gap-3">

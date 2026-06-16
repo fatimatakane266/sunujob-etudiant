@@ -20,6 +20,8 @@ $success = false;
 
 // Traitement du formulaire
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    exigerCsrfPost('/pages/recruteur/profil.php');
+
     $donnees = [
         'nom_structure' => trim($_POST['nom_structure'] ?? ''),
         'type_recruteur' => trim($_POST['type_recruteur'] ?? ''),
@@ -31,7 +33,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Upload logo
     $logo = $profilRecruteur['logo'] ?? null;
-    if (isset($_FILES['logo']) && $_FILES['logo']['error'] === UPLOAD_ERR_OK) {
+    if (isset($_FILES['logo']) && $_FILES['logo']['error'] !== UPLOAD_ERR_NO_FILE) {
+        $errLogo = validerFichierUpload($_FILES['logo'], ['jpg', 'jpeg', 'png', 'gif'], 2 * 1024 * 1024, 'Logo');
+        if ($errLogo) {
+            $erreurs[] = $errLogo;
+        } else {
         $allowed = ['jpg', 'jpeg', 'png', 'gif'];
         $ext = strtolower(pathinfo($_FILES['logo']['name'], PATHINFO_EXTENSION));
 
@@ -42,8 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (move_uploaded_file($_FILES['logo']['tmp_name'], $destination)) {
                 $logo = $newName;
             }
-        } else {
-            $erreurs[] = "Format de logo non autorisé (jpg, png, gif uniquement).";
+        }
         }
     }
 
@@ -117,6 +122,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
                 <?php endif; ?>
 
                 <form method="POST" action="" enctype="multipart/form-data">
+                    <?= champCsrf() ?>
                     <!-- Logo -->
                     <div class="text-center mb-4">
                         <div class="mb-3">

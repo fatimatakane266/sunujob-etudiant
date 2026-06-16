@@ -20,6 +20,8 @@ $success = false;
 
 // Traitement du formulaire
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    exigerCsrfPost('/pages/etudiant/profil.php');
+
     $donnees = [
         'universite' => trim($_POST['universite'] ?? ''),
         'niveau_etude' => trim($_POST['niveau_etude'] ?? ''),
@@ -33,7 +35,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Upload photo
     $photo = $user['photo'];
-    if (isset($_FILES['photo']) && $_FILES['photo']['error'] === UPLOAD_ERR_OK) {
+    if (isset($_FILES['photo']) && $_FILES['photo']['error'] !== UPLOAD_ERR_NO_FILE) {
+        $errPhoto = validerFichierUpload($_FILES['photo'], ['jpg', 'jpeg', 'png', 'gif'], 2 * 1024 * 1024, 'Photo');
+        if ($errPhoto) {
+            $erreurs[] = $errPhoto;
+        } else {
         $allowed = ['jpg', 'jpeg', 'png', 'gif'];
         $ext = strtolower(pathinfo($_FILES['photo']['name'], PATHINFO_EXTENSION));
 
@@ -45,14 +51,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $photo = $newName;
                 $_SESSION['user_photo'] = $photo;
             }
-        } else {
-            $erreurs[] = "Format de photo non autorisé (jpg, png, gif uniquement).";
+        }
         }
     }
 
     // Upload CV
     $cv = $profilEtudiant['cv'] ?? null;
-    if (isset($_FILES['cv']) && $_FILES['cv']['error'] === UPLOAD_ERR_OK) {
+    if (isset($_FILES['cv']) && $_FILES['cv']['error'] !== UPLOAD_ERR_NO_FILE) {
+        $errCv = validerFichierUpload($_FILES['cv'], ['pdf', 'doc', 'docx'], 5 * 1024 * 1024, 'CV');
+        if ($errCv) {
+            $erreurs[] = $errCv;
+        } else {
         $allowed = ['pdf', 'doc', 'docx'];
         $ext = strtolower(pathinfo($_FILES['cv']['name'], PATHINFO_EXTENSION));
 
@@ -63,8 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (move_uploaded_file($_FILES['cv']['tmp_name'], $destination)) {
                 $cv = $newName;
             }
-        } else {
-            $erreurs[] = "Format de CV non autorisé (pdf, doc, docx uniquement).";
+        }
         }
     }
 
@@ -141,6 +149,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
                 <?php endif; ?>
 
                 <form method="POST" action="" enctype="multipart/form-data">
+                    <?= champCsrf() ?>
                     <!-- Photo de profil -->
                     <div class="text-center mb-4">
                         <div class="mb-3">

@@ -14,6 +14,8 @@ $messages = [];
 $errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['user_id'])) {
+    exigerCsrfPost('/pages/admin/users.php');
+
     $action = $_POST['action'];
     $userId = (int)$_POST['user_id'];
 
@@ -69,7 +71,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
                 <h1>Gestion des utilisateurs</h1>
                 <p class="mb-0 text-white-50">Voir, activer, désactiver et supprimer les comptes.</p>
             </div>
-            <a href="/pages/admin/dashboard.php" class="btn btn-outline-custom"><i class="fas fa-arrow-left me-2"></i>Retour au dashboard</a>
+            <a href="/pages/admin/dashboard.php" class="btn btn-outline-header"><i class="fas fa-arrow-left me-2"></i>Retour au dashboard</a>
         </div>
     </div>
 </div>
@@ -113,6 +115,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
                                 <td class="text-end">
                                     <?php if ($user['id'] !== $_SESSION['user_id']): ?>
                                         <form method="post" class="d-inline">
+                                            <?= champCsrf() ?>
                                             <input type="hidden" name="action" value="toggle_status">
                                             <input type="hidden" name="user_id" value="<?= htmlspecialchars($user['id']) ?>">
                                             <button type="submit" class="btn btn-sm btn-outline-custom">
@@ -120,6 +123,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
                                             </button>
                                         </form>
                                         <form method="post" class="d-inline ms-2" onsubmit="return confirm('Supprimer cet utilisateur ?');">
+                                            <?= champCsrf() ?>
                                             <input type="hidden" name="action" value="delete">
                                             <input type="hidden" name="user_id" value="<?= htmlspecialchars($user['id']) ?>">
                                             <button type="submit" class="btn btn-sm btn-danger">Supprimer</button>
