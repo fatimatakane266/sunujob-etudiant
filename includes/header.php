@@ -33,10 +33,8 @@ if (isset($_SESSION['user_id'])) {
 
 $pageActive = $pageActive ?? '';
 
-// Choisir la source du logo
-$logoPath = file_exists($_SERVER['DOCUMENT_ROOT'] . '/assets/images/logo.png')
-    ? '/assets/images/logo.png'
-    : '/assets/images/logo.svg';
+// Choisir la source du logo - SVG privilégié (transparent, haute qualité)
+$logoPath = '/assets/images/logo.svg';
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -63,8 +61,7 @@ $logoPath = file_exists($_SERVER['DOCUMENT_ROOT'] . '/assets/images/logo.png')
     <div class="container">
 
         <a class="navbar-brand" href="/index.php">
-            <img src="<?= $logoPath ?>" alt="SunuJob Étudiant"
-                 style="height:46px;"
+            <img class="navbar-logo" src="<?= $logoPath ?>" alt="SunuJob Étudiant"
                  onerror="this.onerror=null; this.src='<?= str_replace('.png', '.svg', $logoPath) ?>';">
         </a>
 
@@ -100,20 +97,8 @@ $logoPath = file_exists($_SERVER['DOCUMENT_ROOT'] . '/assets/images/logo.png')
                         <i class="fas fa-envelope me-1"></i> Contact
                     </a>
                 </li>
-                <?php if ($user && $user['role'] === 'recruteur'): ?>
-                <li class="nav-item">
-                    <a class="nav-link <?= $pageActive === 'mes-missions' ? 'active' : '' ?>" href="/pages/recruteur/mes-missions.php">
-                        <i class="fas fa-list-check me-1"></i> Mes missions
-                    </a>
-                </li>
-                <?php endif; ?>
-                <?php if ($user && $user['role'] === 'admin'): ?>
-                    <li class="nav-item">
-                        <a class="nav-link <?= $pageActive === 'admin' ? 'active' : '' ?>" href="/pages/admin/dashboard.php">
-                            <i class="fas fa-user-shield me-1"></i> Admin
-                        </a>
-                    </li>
-                <?php endif; ?>
+                <!-- 'Mes missions' removed from top navbar for recruiters -->
+                <!-- Admin link removed from top nav (dashboard accessible via user menu) -->
             </ul>
 
             <!-- Nav droite -->
@@ -138,17 +123,22 @@ $logoPath = file_exists($_SERVER['DOCUMENT_ROOT'] . '/assets/images/logo.png')
                     <!-- Menu utilisateur -->
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" role="button" data-bs-toggle="dropdown">
-                            <?php if ($user['photo']): ?>
-                                <img src="/uploads/photos/<?= htmlspecialchars($user['photo']) ?>"
-                                     alt="Photo" class="rounded-circle"
-                                     style="width:32px;height:32px;object-fit:cover;border:2px solid rgba(255,255,255,0.5);">
+                            <?php if ($user['role'] !== 'admin'): ?>
+                                <?php if ($user['photo']): ?>
+                                    <img src="/uploads/photos/<?= htmlspecialchars($user['photo']) ?>"
+                                         alt="Photo" class="rounded-circle"
+                                         style="width:32px;height:32px;object-fit:cover;border:2px solid rgba(255,255,255,0.5);">
+                                <?php else: ?>
+                                    <span class="rounded-circle d-inline-flex align-items-center justify-content-center"
+                                          style="width:32px;height:32px;background:rgba(255,255,255,0.2);font-size:0.85rem;font-weight:700;">
+                                        <?= strtoupper(substr($user['prenom'],0,1)) ?>
+                                    </span>
+                                <?php endif; ?>
+                                <span class="d-none d-lg-inline"><?= htmlspecialchars($user['prenom']) ?></span>
                             <?php else: ?>
-                                <span class="rounded-circle d-inline-flex align-items-center justify-content-center"
-                                      style="width:32px;height:32px;background:rgba(255,255,255,0.2);font-size:0.85rem;font-weight:700;">
-                                    <?= strtoupper(substr($user['prenom'],0,1)) ?>
-                                </span>
+                                <i class="fas fa-cog" style="font-size: 1.1rem;"></i>
+                                <span class="d-none d-lg-inline">Admin</span>
                             <?php endif; ?>
-                            <span class="d-none d-lg-inline"><?= htmlspecialchars($user['prenom']) ?></span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li>
@@ -196,14 +186,26 @@ $logoPath = file_exists($_SERVER['DOCUMENT_ROOT'] . '/assets/images/logo.png')
     </div>
 </nav>
 
-<!-- Flash messages -->
+<!-- Flash messages (Toast) -->
 <?php if (isset($_SESSION['flash_message'])): ?>
-<div class="container mt-3">
-    <div class="alert alert-<?= $_SESSION['flash_type'] ?? 'info' ?> alert-dismissible fade show rounded-3" role="alert">
+<div id="flashToast" class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 9999;">
+    <div class="alert alert-<?= $_SESSION['flash_type'] ?? 'info' ?> alert-dismissible fade show rounded-3" role="alert" style="min-width: 320px; max-width: 500px;">
         <i class="fas fa-<?= ($_SESSION['flash_type'] ?? 'info') === 'success' ? 'check-circle' : 'exclamation-circle' ?> me-2"></i>
-        <?= htmlspecialchars($_SESSION['flash_message']) ?>
+        <span><?= htmlspecialchars($_SESSION['flash_message']) ?></span>
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
 </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const flashToast = document.getElementById('flashToast');
+        if (flashToast) {
+            const alert = flashToast.querySelector('.alert');
+            const bsAlert = new bootstrap.Alert(alert);
+            setTimeout(() => {
+                bsAlert.close();
+            }, 4500);
+        }
+    });
+</script>
 <?php unset($_SESSION['flash_message'], $_SESSION['flash_type']); ?>
 <?php endif; ?>

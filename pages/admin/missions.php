@@ -92,12 +92,18 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
                                 <td><span class="badge bg-<?= $mission['statut'] === 'active' ? 'success' : 'secondary' ?>"><?= ucfirst($mission['statut']) ?></span></td>
                                 <td><?= date('d/m/Y', strtotime($mission['created_at'])) ?></td>
                                 <td class="text-end">
-                                    <a href="/mission-detail.php?id=<?= htmlspecialchars($mission['id']) ?>" class="btn btn-sm btn-outline-custom">Voir</a>
-                                    <form method="post" class="d-inline ms-2" onsubmit="return confirm('Supprimer cette mission ?');">
-                                        <input type="hidden" name="action" value="delete">
-                                        <input type="hidden" name="mission_id" value="<?= htmlspecialchars($mission['id']) ?>">
-                                        <button type="submit" class="btn btn-sm btn-danger">Supprimer</button>
-                                    </form>
+                                    <div class="d-flex justify-content-end align-items-center gap-2">
+                                        <a href="/mission-detail.php?id=<?= htmlspecialchars($mission['id']) ?>" class="btn btn-sm admin-action-btn btn-outline-custom" title="Voir la mission">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <form method="post" class="d-inline" onsubmit="return confirm('Supprimer cette mission ?');">
+                                            <input type="hidden" name="action" value="delete">
+                                            <input type="hidden" name="mission_id" value="<?= htmlspecialchars($mission['id']) ?>">
+                                            <button type="submit" class="btn btn-sm admin-action-btn btn-danger" title="Supprimer">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
                         <?php endforeach; ?>

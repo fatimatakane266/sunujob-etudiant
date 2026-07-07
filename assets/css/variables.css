@@ -2,15 +2,11 @@
 /* Palette alignée sur le logo officiel + charte graphique */
 
 :root {
-  /* Couleurs du logo */
-  --color-primary:              #1B3F72; /* Bleu marine — structure, titres */
-  --color-primary-light:        #2E6DB4; /* Bleu moyen — liens, icônes */
-  --color-primary-dark:         #0F2D52; /* Bleu profond — hero, contraste */
-  --color-accent-gold:          #FFD700; /* Or — CTA étudiant (logo JOB) */
-  --color-accent-gold-dark:     #E6C200; /* Or foncé — hover */
-  --color-accent-orange:        #F5A623; /* Orange — CTA recruteur */
-  --color-accent-orange-dark:   #D4911E; /* Orange foncé — hover */
-  --color-accent-green:         #2D9B4E; /* Vert émeraude — succès, rémunération */
+  /* Couleurs du logo - Palette officielle EXIGENCES_PROJET.md */
+  --color-primary:              #1B3F72; /* Bleu Marine — principal */
+  --color-primary-light:        #2E6DB4; /* Bleu Moyen — liens, icônes */
+  --color-accent-gold:          #FFD700; /* OR — texte JOB, ÉTUDIANT */
+  --color-accent-green:         #2D9B4E; /* Vert Émeraude — succès, rémunération */
 
   /* Fonds */
   --color-bg:                   #F5F4F0; /* Blanc cassé — charte */
@@ -21,18 +17,17 @@
 
   /* Textes */
   --color-text-main:            #1B3F72;
-  --color-text-dark:            #0F2D52;
-  --color-text-muted:           #64748B;
-  --color-text-light:           #94A3B8;
+  --color-text-muted:           #6B7280;
+  --color-text-light:           #E8E8E6;
 
-  /* Dégradés — 4 essentiels */
+  /* Dégradés basés sur palette officielle du logo */
   --gradient-primary:           linear-gradient(135deg, #1B3F72 0%, #2E6DB4 100%);
   --gradient-primary-r:         linear-gradient(135deg, #2E6DB4 0%, #1B3F72 100%);
-  --gradient-hero:              linear-gradient(150deg, #0F2D52 0%, #1B3F72 50%, #2E6DB4 100%);
-  --gradient-gold:              linear-gradient(135deg, #E6C200 0%, #FFD700 100%);
-  --gradient-orange:            linear-gradient(135deg, #D4911E 0%, #F5A623 100%);
-  --gradient-green:             linear-gradient(135deg, #1F7A3A 0%, #2D9B4E 100%);
+  --gradient-hero:              linear-gradient(135deg, #1B3F72 0%, #2E6DB4 100%);
+  --gradient-gold:              linear-gradient(135deg, #FFD700 0%, #E6C200 100%);
   --gradient-accent:            linear-gradient(135deg, #2D9B4E 0%, #FFD700 100%);
+  --gradient-green:             linear-gradient(135deg, #2D9B4E 0%, #1F7A3A 100%);
+  --gradient-navbar:            linear-gradient(135deg, #2F3440 0%, #4B5563 100%);
 
   /* Ombres — teintées bleu marine logo */
   --shadow-sm:                  0 2px 8px rgba(27, 63, 114, 0.08);
@@ -48,9 +43,12 @@
   --radius-xl:                  20px;
   --radius-full:                9999px;
 
-  /* États sémantiques */
+  /* États sémantiques - palette officielle */
   --color-success:              #2D9B4E;
   --color-warning:              #F5A623;
-  --color-danger:               #DC2626;
+  --color-accent-orange:        #F5A623; /* Orange warning/accent */
+  --color-danger:               #DC3545;
   --color-info:                 #2E6DB4;
+
+  --gradient-orange:            linear-gradient(135deg, #F5A623 0%, #F7B21A 100%);
 }

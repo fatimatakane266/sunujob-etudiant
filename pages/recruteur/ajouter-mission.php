@@ -21,6 +21,8 @@ $donnees = [
     'remuneration' => '',
     'date_debut' => '',
     'date_fin' => '',
+    'jours_travail' => '',
+    'heures_travail' => '',
     'places_disponibles' => '1'
 ];
 
@@ -37,12 +39,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'remuneration' => $_POST['remuneration'] ?? '',
         'date_debut' => $_POST['date_debut'] ?? '',
         'date_fin' => $_POST['date_fin'] ?? '',
+        'jours_travail' => trim($_POST['jours_travail'] ?? ''),
+        'heures_travail' => trim($_POST['heures_travail'] ?? ''),
         'places_disponibles' => $_POST['places_disponibles'] ?? 1
     ];
 
     // Validation
     if (empty($donnees['titre'])) $erreurs[] = "Le titre est obligatoire.";
-    if (empty($donnees['description'])) $erreurs[] = "La description est obligatoire.";
+    if (empty($donnees['description'])) {
+        $erreurs[] = "La description est obligatoire.";
+    } else {
+        $descriptionTexte = trim($donnees['description']);
+        $descriptionMots = $descriptionTexte === '' ? 0 : count(preg_split('/\s+/u', $descriptionTexte));
+        if ($descriptionMots > 120) {
+            $erreurs[] = "La description doit contenir au maximum 120 mots.";
+        }
+        if (mb_strlen($descriptionTexte) > 800) {
+            $erreurs[] = "La description doit contenir au maximum 800 caractères.";
+        }
+    }
     if (empty($donnees['categorie_id'])) $erreurs[] = "La catégorie est obligatoire.";
     if (empty($donnees['localisation'])) $erreurs[] = "La localisation est obligatoire.";
     if (empty($donnees['type_mission'])) $erreurs[] = "Le type de mission est obligatoire.";
@@ -59,8 +74,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (empty($erreurs)) {
         $stmt = $conn->prepare("
-            INSERT INTO missions (recruteur_id, categorie_id, titre, description, localisation, type_mission, remuneration, date_debut, date_fin, places_disponibles)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO missions (recruteur_id, categorie_id, titre, description, localisation, type_mission, remuneration, date_debut, date_fin, jours_travail, heures_travail, places_disponibles)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
 
         $recruteurId = $_SESSION['user_id'];
@@ -68,7 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $date_debut = !empty($donnees['date_debut']) ? $donnees['date_debut'] : null;
         $date_fin = !empty($donnees['date_fin']) ? $donnees['date_fin'] : null;
 
-        $stmt->bind_param("iissssdssi",
+        $stmt->bind_param("iissssdssssi",
             $recruteurId,
             $donnees['categorie_id'],
             $donnees['titre'],
@@ -78,6 +93,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $remuneration,
             $date_debut,
             $date_fin,
+            $donnees['jours_travail'],
+            $donnees['heures_travail'],
             $donnees['places_disponibles']
         );
 
@@ -144,7 +161,8 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
 
                     <div class="mb-3">
                         <label for="description" class="form-label">Description *</label>
-                        <textarea class="form-control" id="description" name="description" rows="5" required placeholder="Décrivez en détail la mission, les tâches à effectuer, les compétences requises..."><?= htmlspecialchars($donnees['description']) ?></textarea>
+                        <textarea class="form-control" id="description" name="description" rows="5" maxlength="800" required placeholder="Décrivez en détail la mission, les tâches à effectuer, les compétences requises..."><?= htmlspecialchars($donnees['description']) ?></textarea>
+                        <div class="form-text">Maximum 120 mots et 800 caractères.</div>
                     </div>
 
                     <div class="row">
@@ -175,6 +193,17 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
                         <div class="col-md-4 mb-3">
                             <label for="date_fin" class="form-label">Date de fin</label>
                             <input type="date" class="form-control" id="date_fin" name="date_fin" value="<?= htmlspecialchars($donnees['date_fin']) ?>">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="jours_travail" class="form-label">Jours de travail</label>
+                            <input type="text" class="form-control" id="jours_travail" name="jours_travail" value="<?= htmlspecialchars($donnees['jours_travail']) ?>" placeholder="Ex: Lundi, Mercredi, Vendredi">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="heures_travail" class="form-label">Heures de travail</label>
+                            <input type="text" class="form-control" id="heures_travail" name="heures_travail" value="<?= htmlspecialchars($donnees['heures_travail']) ?>" placeholder="Ex: 09h00 - 13h00">
                         </div>
                     </div>
 

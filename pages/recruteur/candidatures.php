@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
     if (in_array($action, ['acceptee', 'refusee', 'en_cours', 'terminee'])) {
         // Vérifier que la candidature appartient à une de ses missions
         $stmt = $conn->prepare("
-            SELECT c.*, m.recruteur_id, m.id as mission_id_ref, m.places_disponibles, m.titre as mission_titre
+            SELECT c.*, m.recruteur_id, m.id as mission_id_ref, m.places_disponibles, m.titre as mission_titre, m.localisation, m.jours_travail, m.heures_travail
             FROM candidatures c
             JOIN missions m ON c.mission_id = m.id
             WHERE c.id = ? AND m.recruteur_id = ?
@@ -47,12 +47,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_
 
             // Notification à l'étudiant
             $messagesNotif = [
-                'acceptee'  => ['Candidature acceptée !', 'Votre candidature a été acceptée.', 'success'],
+                'acceptee'  => ['Mission acceptée', 'Votre candidature a été acceptée.', 'success'],
                 'refusee'   => ['Candidature refusée', 'Votre candidature a été refusée.', 'info'],
                 'en_cours'  => ['Mission en cours', 'Votre mission a démarré. Bon courage !', 'info'],
                 'terminee'  => ['Mission terminée', 'Votre mission est marquée comme terminée.', 'success']
             ];
             [$titre, $message, $typeNotif] = $messagesNotif[$action];
+
+            if ($action === 'acceptee') {
+                $planning = [];
+                if (!empty($cand['jours_travail'])) {
+                    $planning[] = 'Jours : ' . $cand['jours_travail'];
+                }
+                if (!empty($cand['heures_travail'])) {
+                    $planning[] = 'Horaires : ' . $cand['heures_travail'];
+                }
+                $detailsPlanning = $planning ? ' ' . implode(' | ', $planning) : '';
+                $message = "Félicitations ! Votre candidature pour \"{$cand['mission_titre']}\" a été acceptée. Veuillez vous présenter à {$cand['localisation']}{$detailsPlanning}. Apportez votre pièce d'identité, votre carte d'étudiant et votre CV pour finaliser votre mission.";
+            }
             $lien = "/pages/etudiant/mes-candidatures.php";
 
             $stmtNotif = $conn->prepare("INSERT INTO notifications (utilisateur_id, type, titre, message, lien) VALUES (?, ?, ?, ?, ?)");
@@ -108,7 +120,7 @@ if ($statut && in_array($statut, getStatutsCandidature())) {
 
 // Récupérer les candidatures
 $stmt = $conn->prepare("
-    SELECT c.*, m.titre as mission_titre, m.localisation, m.remuneration,
+    SELECT c.*, m.titre as mission_titre, m.localisation, m.remuneration, m.jours_travail, m.heures_travail,
            u.nom as etudiant_nom, u.prenom as etudiant_prenom, u.email as etudiant_email, u.telephone as etudiant_telephone,
            pe.universite, pe.niveau_etude, pe.filiere, pe.competences, pe.cv, pe.bio
     FROM candidatures c
@@ -116,7 +128,7 @@ $stmt = $conn->prepare("
     JOIN utilisateurs u ON c.etudiant_id = u.id
     LEFT JOIN profils_etudiants pe ON pe.utilisateur_id = u.id
     WHERE $where
-    ORDER BY c.created_at DESC
+    ORDER BY c.created_at DESC, c.id DESC
 ");
 $stmt->bind_param($types, ...$params);
 $stmt->execute();
@@ -169,6 +181,11 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
                 <i class="fas fa-times me-2"></i>Réinitialiser
             </a>
         </div>
+    </div>
+
+    <div class="alert alert-info-custom mb-4">
+        <i class="fas fa-info-circle me-2"></i>
+        Les nouvelles candidatures apparaissent ici dès qu’elles sont enregistrées. Si vous utilisez un filtre, utilisez le bouton de réinitialisation pour tout voir.
     </div>
 
     <?php if (empty($candidatures)): ?>

@@ -117,10 +117,6 @@ function inscrire($data) {
         $erreurs[] = "Le rôle est obligatoire.";
     }
 
-    if ($data['role'] === 'etudiant' && !estEmailScolaire($data['email'] ?? '')) {
-        $erreurs[] = "Vous n'êtes pas étudiant. Veuillez utiliser une adresse email scolaire (ex : @etu.ucad.sn, @edu.sn).";
-    }
-
     // Vérifier si l'email existe déjà
     $email = securiser($data['email']);
     $stmt = $conn->prepare("SELECT id FROM utilisateurs WHERE email = ?");
@@ -187,13 +183,6 @@ function connecter($email, $motDePasse) {
 
     if (!password_verify($motDePasse, $user['mot_de_passe'])) {
         return ['succes' => false, 'erreur' => "Email ou mot de passe incorrect."];
-    }
-
-    if ($user['role'] === 'etudiant' && !estEmailScolaire($user['email'])) {
-        return [
-            'succes' => false,
-            'erreur' => "Vous n'êtes pas étudiant. Votre compte doit utiliser une adresse email scolaire (ex : @etu.ucad.sn, @edu.sn)."
-        ];
     }
 
     // Mettre à jour la dernière connexion

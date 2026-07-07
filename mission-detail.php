@@ -78,6 +78,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && estConnecte() && aRole('etudiant') 
         $stmt->bind_param("iis", $_SESSION['user_id'], $missionId, $messageMotivation);
 
         if ($stmt->execute()) {
+            $_SESSION['flash_message'] = 'Votre candidature a bien été envoyée. Le recruteur la verra sur son tableau de bord.';
+            $_SESSION['flash_type'] = 'success';
+
             // Notification au recruteur
             $titre = "Nouvelle candidature";
             $message = "Un étudiant a postulé à votre mission : " . $mission['titre'];
@@ -164,6 +167,18 @@ require_once 'includes/header.php';
                         </div>
                     </div>
                 </div>
+
+                <?php if (!empty($mission['jours_travail']) || !empty($mission['heures_travail'])): ?>
+                    <div class="mb-4 p-3 rounded border" style="background: rgba(46, 109, 180, 0.05);">
+                        <h5 class="mb-3"><i class="fas fa-calendar-check me-2"></i>Planning de travail</h5>
+                        <?php if (!empty($mission['jours_travail'])): ?>
+                            <p class="mb-2"><strong>Jours :</strong> <?= htmlspecialchars($mission['jours_travail']) ?></p>
+                        <?php endif; ?>
+                        <?php if (!empty($mission['heures_travail'])): ?>
+                            <p class="mb-0"><strong>Heures :</strong> <?= htmlspecialchars($mission['heures_travail']) ?></p>
+                        <?php endif; ?>
+                    </div>
+                <?php endif; ?>
 
                 <!-- Dates -->
                 <?php if ($mission['date_debut'] || $mission['date_fin']): ?>

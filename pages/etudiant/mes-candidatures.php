@@ -161,6 +161,19 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
                             </div>
                         <?php endif; ?>
 
+                        <?php if (in_array($cand['statut'], ['acceptee', 'en_cours'])): ?>
+                            <div class="alert alert-success-custom mb-3" role="alert">
+                                <div class="fw-semibold mb-1"><i class="fas fa-check-circle me-2"></i>Mission acceptée</div>
+                                <small class="d-block mb-2">Vous êtes désormais retenu pour cette mission. Voici la suite à suivre :</small>
+                                <ul class="mb-0 ps-3 small">
+                                    <li>Présentez-vous à <strong><?= htmlspecialchars($cand['localisation']) ?></strong></li>
+                                    <?php if (!empty($cand['jours_travail'])): ?><li>Jours : <strong><?= htmlspecialchars($cand['jours_travail']) ?></strong></li><?php endif; ?>
+                                    <?php if (!empty($cand['heures_travail'])): ?><li>Horaires : <strong><?= htmlspecialchars($cand['heures_travail']) ?></strong></li><?php endif; ?>
+                                    <li>Apportez votre pièce d'identité, votre carte d'étudiant et votre CV.</li>
+                                </ul>
+                            </div>
+                        <?php endif; ?>
+
                         <div class="d-flex justify-content-between align-items-center">
                             <small class="text-muted">
                                 <i class="fas fa-calendar me-1"></i>

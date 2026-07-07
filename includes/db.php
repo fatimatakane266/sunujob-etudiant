@@ -70,6 +70,34 @@ if ($vuesColumn && $vuesColumn->num_rows === 0) {
     $conn->query("ALTER TABLE missions ADD COLUMN nb_vues INT NOT NULL DEFAULT 0 AFTER places_disponibles");
 }
 
+// Planning de travail pour les missions acceptées
+$joursColumn = $conn->query("SHOW COLUMNS FROM missions LIKE 'jours_travail'");
+if ($joursColumn && $joursColumn->num_rows === 0) {
+    $conn->query("ALTER TABLE missions ADD COLUMN jours_travail VARCHAR(100) NULL AFTER date_fin");
+}
+
+$heuresColumn = $conn->query("SHOW COLUMNS FROM missions LIKE 'heures_travail'");
+if ($heuresColumn && $heuresColumn->num_rows === 0) {
+    $conn->query("ALTER TABLE missions ADD COLUMN heures_travail VARCHAR(100) NULL AFTER jours_travail");
+}
+
+// Table des paiements
+$paiementsTable = $conn->query("SHOW TABLES LIKE 'paiements'");
+if ($paiementsTable && $paiementsTable->num_rows === 0) {
+    $conn->query("CREATE TABLE paiements (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        utilisateur_id INT NOT NULL,
+        montant DECIMAL(10,2) NOT NULL,
+        methode ENUM('orange_money','wave','virement') NOT NULL,
+        destinataire VARCHAR(150) NOT NULL,
+        reference VARCHAR(100) NOT NULL,
+        commentaire TEXT,
+        statut ENUM('en_attente','termine','annule') NOT NULL DEFAULT 'en_attente',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (utilisateur_id) REFERENCES utilisateurs(id) ON DELETE CASCADE
+    )");
+}
+
 // Statuts candidatures : en_cours et terminee
 $statutCandidatureColumn = $conn->query("SHOW COLUMNS FROM candidatures LIKE 'statut'");
 if ($statutCandidatureColumn && $statutCandidatureColumn->num_rows > 0) {
@@ -87,7 +115,20 @@ function fermerMissionsExpirees() {
     $conn->query("UPDATE missions SET statut = 'expiree' WHERE statut = 'active' AND date_fin IS NOT NULL AND date_fin < CURDATE()");
 }
 
+function actualiserCandidaturesTerminees() {
+    global $conn;
+    $conn->query(
+        "UPDATE candidatures c
+         JOIN missions m ON c.mission_id = m.id
+         SET c.statut = 'terminee'
+         WHERE c.statut IN ('acceptee', 'en_cours')
+           AND m.date_fin IS NOT NULL
+           AND m.date_fin < CURDATE()"
+    );
+}
+
 fermerMissionsExpirees();
+actualiserCandidaturesTerminees();
 
 /**
  * Fonction pour sécuriser les données

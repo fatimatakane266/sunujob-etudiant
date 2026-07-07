@@ -48,7 +48,7 @@ if ($result) {
 }
 
 $dernieresMissions = [];
-$result = $conn->query("SELECT m.id, m.titre, m.localisation, m.statut, u.nom as recruteur_nom, u.prenom as recruteur_prenom, c.nom as categorie_nom FROM missions m JOIN utilisateurs u ON u.id = m.recruteur_id JOIN categories c ON c.id = m.categorie_id ORDER BY m.created_at DESC LIMIT 6");
+$result = $conn->query("SELECT m.id, m.titre, m.localisation, m.statut, m.jours_travail, m.heures_travail, u.nom as recruteur_nom, u.prenom as recruteur_prenom, c.nom as categorie_nom FROM missions m JOIN utilisateurs u ON u.id = m.recruteur_id JOIN categories c ON c.id = m.categorie_id ORDER BY m.created_at DESC LIMIT 6");
 if ($result) {
     $dernieresMissions = $result->fetch_all(MYSQLI_ASSOC);
 }
@@ -219,7 +219,18 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
                                             <a href="/mission-detail.php?id=<?= $mission['id'] ?>" class="fw-semibold text-decoration-none" style="color: var(--color-primary);">
                                                 <?= htmlspecialchars(substr($mission['titre'], 0, 35)) ?>...
                                             </a>
-                                            <br><small class="text-muted"><?= htmlspecialchars($mission['categorie_nom']) ?></small>
+                                            <br>
+                                            <small class="text-muted"><?= htmlspecialchars($mission['categorie_nom']) ?></small>
+                                            <?php if (!empty($mission['jours_travail']) || !empty($mission['heures_travail'])): ?>
+                                                <div class="mt-1 text-muted" style="font-size:0.82rem;">
+                                                    <?php if (!empty($mission['jours_travail'])): ?>
+                                                        <span><i class="fas fa-calendar-day me-1"></i><?= htmlspecialchars($mission['jours_travail']) ?></span>
+                                                    <?php endif; ?>
+                                                    <?php if (!empty($mission['heures_travail'])): ?>
+                                                        <span class="ms-3"><i class="fas fa-clock me-1"></i><?= htmlspecialchars($mission['heures_travail']) ?></span>
+                                                    <?php endif; ?>
+                                                </div>
+                                            <?php endif; ?>
                                         </td>
                                         <td style="color: var(--color-text-muted);"><?= htmlspecialchars($mission['recruteur_prenom'] . ' ' . $mission['recruteur_nom']) ?></td>
                                         <td>

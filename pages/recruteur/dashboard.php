@@ -73,7 +73,7 @@ $stmt = $conn->prepare("
     JOIN utilisateurs u ON c.etudiant_id = u.id
     LEFT JOIN profils_etudiants pe ON pe.utilisateur_id = u.id
     WHERE m.recruteur_id = ?
-    ORDER BY c.created_at DESC
+    ORDER BY c.created_at DESC, c.id DESC
     LIMIT 5
 ");
 $stmt->bind_param("i", $recruteurId);

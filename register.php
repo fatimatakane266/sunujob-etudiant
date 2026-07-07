@@ -128,7 +128,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <label for="email" class="form-label">Adresse email *</label>
                     <input type="email" class="form-control" id="email" name="email" value="<?= htmlspecialchars($donnees['email']) ?>" required>
                     <div class="form-text" id="email_hint" style="<?= $donnees['role'] === 'recruteur' ? 'display:none' : '' ?>">
-                        Utilisez votre email scolaire (ex : prenom.nom@etu.ucad.sn, @edu.sn)
+                        Vous pouvez utiliser une adresse email personnelle ou scolaire.
                     </div>
                 </div>
 

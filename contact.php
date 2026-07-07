@@ -30,7 +30,61 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($donnees['message'])) $erreurs[] = "Le message est obligatoire.";
 
     if (empty($erreurs)) {
-        // En production, envoyer l'email
+        // Préparer notification / email vers les administrateurs
+        $success = false;
+
+        // Titre et message destinés aux admins
+        $titreNotif = 'Nouveau message contact';
+        $messageNotif = "Message de {$donnees['nom']} ({$donnees['email']})\nSujet: {$donnees['sujet']}\n\n{$donnees['message']}";
+
+        // Envoyer un email simple au contact principal (fallback)
+        $adminEmail = 'contact@sunujob.sn';
+        $subject = "[SunuJob] Nouveau message: " . $donnees['sujet'];
+        $headers  = 'From: ' . $donnees['nom'] . " <" . $donnees['email'] . ">\r\n";
+        $headers .= 'Reply-To: ' . $donnees['email'] . "\r\n";
+        $headers .= 'Content-Type: text/plain; charset=UTF-8\r\n';
+
+        @mail($adminEmail, $subject, $messageNotif, $headers);
+
+        // Insérer une notification pour chaque administrateur présent en base
+        if (isset($conn)) {
+            $stmtAdmins = $conn->query("SELECT id, email, telephone FROM utilisateurs WHERE role = 'admin'");
+            if ($stmtAdmins) {
+                while ($admin = $stmtAdmins->fetch_assoc()) {
+                    $uid = (int)$admin['id'];
+                    $stmtNotif = $conn->prepare("INSERT INTO notifications (utilisateur_id, type, titre, message, lien) VALUES (?, ?, ?, ?, '')");
+                    if ($stmtNotif) {
+                        $type = 'info';
+                        $stmtNotif->bind_param('isss', $uid, $type, $titreNotif, $messageNotif);
+                        $stmtNotif->execute();
+                    }
+
+                    // Optionnel : envoi SMS via Twilio si configuré
+                    if (!empty($admin['telephone']) && getenv('TWILIO_SID') && getenv('TWILIO_TOKEN') && getenv('TWILIO_FROM')) {
+                        $sid = getenv('TWILIO_SID');
+                        $token = getenv('TWILIO_TOKEN');
+                        $from = getenv('TWILIO_FROM');
+                        $to = preg_replace('/[^0-9+]/', '', $admin['telephone']);
+                        $smsBody = "SunuJob: Nouveau message de {$donnees['nom']} ({$donnees['email']}) - Sujet: {$donnees['sujet']}.";
+
+                        $url = "https://api.twilio.com/2010-04-01/Accounts/{$sid}/Messages.json";
+                        $data = http_build_query(['From' => $from, 'To' => $to, 'Body' => $smsBody]);
+
+                        $ch = curl_init($url);
+                        curl_setopt($ch, CURLOPT_POST, true);
+                        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+                        curl_setopt($ch, CURLOPT_USERPWD, $sid . ':' . $token);
+                        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+                        $res = curl_exec($ch);
+                        curl_close($ch);
+                        // Ne faisons rien du résultat ici; log si besoin
+                    }
+                }
+            }
+        }
+
+        // Tout s'est bien passé côté utilisateur
         $success = true;
         $donnees = ['nom' => '', 'email' => '', 'sujet' => '', 'message' => ''];
     }

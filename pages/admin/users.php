@@ -118,15 +118,17 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
                                             <?= champCsrf() ?>
                                             <input type="hidden" name="action" value="toggle_status">
                                             <input type="hidden" name="user_id" value="<?= htmlspecialchars($user['id']) ?>">
-                                            <button type="submit" class="btn btn-sm btn-outline-custom">
-                                                <?= $user['statut'] === 'actif' ? 'Désactiver' : 'Activer' ?>
+                                            <button type="submit" class="btn btn-sm admin-action-btn btn-outline-custom" title="<?= $user['statut'] === 'actif' ? 'Désactiver' : 'Activer' ?>">
+                                                <i class="fas <?= $user['statut'] === 'actif' ? 'fa-user-slash' : 'fa-user-check' ?>"></i>
                                             </button>
                                         </form>
-                                        <form method="post" class="d-inline ms-2" onsubmit="return confirm('Supprimer cet utilisateur ?');">
+                                        <form method="post" class="d-inline ms-1" onsubmit="return confirm('Supprimer cet utilisateur ?');">
                                             <?= champCsrf() ?>
                                             <input type="hidden" name="action" value="delete">
                                             <input type="hidden" name="user_id" value="<?= htmlspecialchars($user['id']) ?>">
-                                            <button type="submit" class="btn btn-sm btn-danger">Supprimer</button>
+                                            <button type="submit" class="btn btn-sm admin-action-btn btn-danger" title="Supprimer">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
                                         </form>
                                     <?php else: ?>
                                         <span class="text-muted">—</span>

@@ -67,7 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
 if (isset($_GET['edit'])) {
     $categorieId = (int)$_GET['edit'];
-    $stmt = $conn->prepare("SELECT id, nom, icone FROM catégories WHERE id = ?");
+    $stmt = $conn->prepare("SELECT id, nom, icone FROM categories WHERE id = ?");
     $stmt->bind_param("i", $categorieId);
     $stmt->execute();
     $categorie = $stmt->get_result()->fetch_assoc();
@@ -149,12 +149,16 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
                                     <td><?= htmlspecialchars($cat['nom']) ?></td>
                                     <td><i class="fas <?= htmlspecialchars($cat['icone']) ?>"></i> <?= htmlspecialchars($cat['icone']) ?></td>
                                     <td class="text-end">
-                                        <a href="/pages/admin/categories.php?edit=<?= htmlspecialchars($cat['id']) ?>" class="btn btn-sm btn-outline-custom">Modifier</a>
-                                        <form method="post" class="d-inline ms-2" onsubmit="return confirm('Supprimer cette catégorie ?');">
+                                        <a href="/pages/admin/categories.php?edit=<?= htmlspecialchars($cat['id']) ?>" class="btn btn-sm admin-action-btn btn-outline-custom" title="Modifier">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <form method="post" class="d-inline ms-1" onsubmit="return confirm('Supprimer cette catégorie ?');">
                                             <?= champCsrf() ?>
                                             <input type="hidden" name="action" value="delete">
                                             <input type="hidden" name="categorie_id" value="<?= htmlspecialchars($cat['id']) ?>">
-                                            <button type="submit" class="btn btn-sm btn-danger">Supprimer</button>
+                                            <button type="submit" class="btn btn-sm admin-action-btn btn-danger" title="Supprimer">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
                                         </form>
                                     </td>
                                 </tr>
