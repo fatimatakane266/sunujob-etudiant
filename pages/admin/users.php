@@ -10,9 +10,6 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/auth.php';
 verifierSession('admin');
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/db.php';
 
-$messages = [];
-$errors = [];
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['user_id'])) {
     exigerCsrfPost('/pages/admin/users.php');
 
@@ -20,7 +17,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['use
     $userId = (int)$_POST['user_id'];
 
     if ($userId === $_SESSION['user_id']) {
-        $errors[] = "Impossible de modifier ou supprimer votre propre compte depuis ce panneau.";
+        $_SESSION['flash_message'] = "Impossible de modifier ou supprimer votre propre compte depuis ce panneau.";
+        $_SESSION['flash_type'] = 'danger';
     } else {
         if ($action === 'toggle_status') {
             $stmt = $conn->prepare("SELECT statut FROM utilisateurs WHERE id = ?");
@@ -33,12 +31,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['use
                 $stmt = $conn->prepare("UPDATE utilisateurs SET statut = ? WHERE id = ?");
                 $stmt->bind_param("si", $newStatus, $userId);
                 if ($stmt->execute()) {
-                    $messages[] = "Statut utilisateur mis à jour.";
+                    $_SESSION['flash_message'] = "Statut utilisateur mis à jour.";
+                    $_SESSION['flash_type'] = 'success';
                 } else {
-                    $errors[] = "Impossible de mettre à jour le statut.";
+                    $_SESSION['flash_message'] = "Impossible de mettre à jour le statut.";
+                    $_SESSION['flash_type'] = 'danger';
                 }
             } else {
-                $errors[] = "Utilisateur introuvable.";
+                $_SESSION['flash_message'] = "Utilisateur introuvable.";
+                $_SESSION['flash_type'] = 'danger';
             }
         }
 
@@ -46,12 +47,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['use
             $stmt = $conn->prepare("DELETE FROM utilisateurs WHERE id = ?");
             $stmt->bind_param("i", $userId);
             if ($stmt->execute()) {
-                $messages[] = "Utilisateur supprimé avec succès.";
+                $_SESSION['flash_message'] = "Utilisateur supprimé avec succès.";
+                $_SESSION['flash_type'] = 'success';
             } else {
-                $errors[] = "Impossible de supprimer l'utilisateur.";
+                $_SESSION['flash_message'] = "Impossible de supprimer l'utilisateur.";
+                $_SESSION['flash_type'] = 'danger';
             }
         }
     }
+
+    header('Location: /pages/admin/users.php');
+    exit;
 }
 
 $users = [];
@@ -77,13 +83,6 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
 </div>
 
 <div class="container py-4">
-    <?php foreach ($messages as $message): ?>
-        <div class="alert alert-success-custom mb-3" role="alert"><?= htmlspecialchars($message) ?></div>
-    <?php endforeach; ?>
-    <?php foreach ($errors as $error): ?>
-        <div class="alert alert-danger-custom mb-3" role="alert"><?= htmlspecialchars($error) ?></div>
-    <?php endforeach; ?>
-
     <div class="card-dashboard">
         <div class="card-body p-3">
             <div class="table-responsive">

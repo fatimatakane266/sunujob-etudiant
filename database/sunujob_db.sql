@@ -86,6 +86,8 @@ CREATE TABLE missions (
     remuneration DECIMAL(10,2),
     date_debut DATE,
     date_fin DATE,
+    jours_travail VARCHAR(100),
+    heures_travail VARCHAR(100),
     places_disponibles INT DEFAULT 1,
     nb_vues INT NOT NULL DEFAULT 0,
     statut ENUM('active', 'fermee', 'expiree') DEFAULT 'active',
@@ -124,23 +126,6 @@ CREATE TABLE notifications (
     message TEXT NOT NULL,
     lien VARCHAR(255),
     lu TINYINT(1) DEFAULT 0,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (utilisateur_id) REFERENCES utilisateurs(id) ON DELETE CASCADE
-);
-
--- ============================================
--- TABLE paiements
--- ============================================
-DROP TABLE IF EXISTS paiements;
-CREATE TABLE paiements (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    utilisateur_id INT NOT NULL,
-    montant DECIMAL(10,2) NOT NULL,
-    methode ENUM('orange_money','wave','virement') NOT NULL,
-    destinataire VARCHAR(150) NOT NULL,
-    reference VARCHAR(100) NOT NULL,
-    commentaire TEXT,
-    statut ENUM('en_attente','termine','annule') NOT NULL DEFAULT 'en_attente',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (utilisateur_id) REFERENCES utilisateurs(id) ON DELETE CASCADE
 );

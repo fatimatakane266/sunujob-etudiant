@@ -121,6 +121,13 @@ Chaque utilisateur disposera d'un espace personnel permettant de :
 - consulter ses missions,
 - gérer ses informations.
 
+### 7.6 Administration de la plateforme
+Un troisième rôle, **administrateur**, existe en plus des étudiants et recruteurs. Il ne publie pas de contenu métier mais assure la modération et le suivi global :
+- tableau de bord avec statistiques globales (utilisateurs, missions, candidatures),
+- gestion des comptes (activer, désactiver ou supprimer un utilisateur),
+- modération des missions (suppression des offres abusives),
+- gestion des catégories de missions.
+
 ---
 
 ## 8. INNOVATION DU PROJET

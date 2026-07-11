@@ -7,7 +7,7 @@
 $pageTitle = 'Contact - SunuJob Étudiant';
 $pageActive = 'contact';
 
-require_once 'includes/db.php';
+require_once 'includes/auth.php';
 require_once 'includes/header.php';
 
 $erreurs = [];
@@ -15,6 +15,8 @@ $success = false;
 $donnees = ['nom' => '', 'email' => '', 'sujet' => '', 'message' => ''];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    exigerCsrfPost('/contact.php');
+
     $donnees = [
         'nom' => trim($_POST['nom'] ?? ''),
         'email' => trim($_POST['email'] ?? ''),
@@ -105,8 +107,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <div class="container py-5">
     <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="mission-detail-card">
+        <div class="col-lg-10">
+            <div class="mission-detail-card contact-card">
                 <?php if ($success): ?>
                     <div class="alert alert-success-custom mb-4" role="alert">
                         <i class="fas fa-check-circle me-2"></i>Votre message a été envoyé avec succès ! Nous vous répondrons dans les plus brefs délais.
@@ -158,6 +160,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     <div class="col-lg-8">
                         <form method="POST" action="">
+                            <?= champCsrf() ?>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label for="nom" class="form-label">Nom complet *</label>

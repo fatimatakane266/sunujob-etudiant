@@ -324,6 +324,38 @@ img { max-width: 100%; height: auto; }
   transform: translateY(-1px);
 }
 
+/* Les classes -custom ont une spécificité égale à .btn-sm : sans cette règle,
+   .btn-sm perd la bataille de cascade et les boutons gardent leur padding "normal",
+   d'où le débordement dans les cartes étroites (ex. candidatures recruteur). */
+.btn-sm.btn-primary-custom,
+.btn-sm.btn-success-custom,
+.btn-sm.btn-outline-custom {
+  padding: 0.35rem 0.75rem;
+  font-size: 0.8125rem;
+}
+
+/* Boutons d'action des candidatures (Accepter/Refuser, En cours/Terminée) :
+   largeur au contenu (pas de fond étiré sur toute la moitié de la card),
+   côte à côte, et jamais plus larges que la card disponible. */
+.candidature-actions {
+  min-width: 0;
+  flex-wrap: wrap;
+}
+.candidature-actions form {
+  min-width: 0;
+  max-width: 100%;
+}
+.candidature-actions .btn {
+  width: auto;
+  max-width: 100%;
+  padding-left: 0.65rem;
+  padding-right: 0.65rem;
+  font-size: 0.78rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 /* ============================================================
    CARDS MISSIONS
    ============================================================ */
@@ -927,6 +959,13 @@ img { max-width: 100%; height: auto; }
   box-shadow: var(--shadow-card);
   border: 1px solid var(--color-border-light);
 }
+.mission-detail-card.contact-card {
+  padding: 2.75rem;
+}
+@media (max-width: 767.98px) {
+  .mission-detail-card.contact-card { padding: 1.5rem; }
+}
+
 .mission-meta {
   display: flex;
   flex-wrap: wrap;

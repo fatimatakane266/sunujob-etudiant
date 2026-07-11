@@ -18,6 +18,8 @@ if (empty($token)) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    exigerCsrfPost('/reset-password.php?token=' . urlencode($_POST['token'] ?? ''));
+
     $token = $_POST['token'] ?? '';
     $motDePasse = $_POST['mot_de_passe'] ?? '';
     $motDePasseConfirm = $_POST['mot_de_passe_confirm'] ?? '';
@@ -74,6 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
             <?php else: ?>
                 <form method="POST" action="">
+                    <?= champCsrf() ?>
                     <input type="hidden" name="token" value="<?= htmlspecialchars($token) ?>">
 
                     <div class="mb-3">

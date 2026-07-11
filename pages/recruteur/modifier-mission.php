@@ -44,6 +44,8 @@ $donnees = [
 ];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    exigerCsrfPost('/pages/recruteur/modifier-mission.php?id=' . $missionId);
+
     $donnees = [
         'titre' => trim($_POST['titre'] ?? ''),
         'description' => trim($_POST['description'] ?? ''),
@@ -87,18 +89,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (empty($erreurs)) {
-        $stmt = $conn->prepare("
-            UPDATE missions SET
-            categorie_id = ?, titre = ?, description = ?, localisation = ?,
-            type_mission = ?, remuneration = ?, date_debut = ?, date_fin = ?, jours_travail = ?, heures_travail = ?, places_disponibles = ?
-            WHERE id = ? AND recruteur_id = ?
-        ");
-
         $remuneration = is_numeric($donnees['remuneration']) ? (float)$donnees['remuneration'] : null;
         $date_debut = !empty($donnees['date_debut']) ? $donnees['date_debut'] : null;
         $date_fin = !empty($donnees['date_fin']) ? $donnees['date_fin'] : null;
 
-        $stmt->bind_param("issssdssssiii",
+        // Si la mission était expirée et que la nouvelle date de fin est désormais valide, on la réactive
+        $statut = $mission['statut'];
+        if ($statut === 'expiree' && ($date_fin === null || $date_fin >= date('Y-m-d'))) {
+            $statut = 'active';
+        }
+
+        $stmt = $conn->prepare("
+            UPDATE missions SET
+            categorie_id = ?, titre = ?, description = ?, localisation = ?,
+            type_mission = ?, remuneration = ?, date_debut = ?, date_fin = ?, jours_travail = ?, heures_travail = ?, places_disponibles = ?, statut = ?
+            WHERE id = ? AND recruteur_id = ?
+        ");
+
+        $stmt->bind_param("issssdssssisii",
             $donnees['categorie_id'],
             $donnees['titre'],
             $donnees['description'],
@@ -110,6 +118,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $donnees['jours_travail'],
             $donnees['heures_travail'],
             $donnees['places_disponibles'],
+            $statut,
             $missionId,
             $recruteurId
         );
@@ -158,6 +167,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
                 <?php endif; ?>
 
                 <form method="POST" action="">
+                    <?= champCsrf() ?>
                     <div class="row">
                         <div class="col-lg-8 mb-3">
                             <label for="titre" class="form-label">Titre de la mission *</label>

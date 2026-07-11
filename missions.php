@@ -142,7 +142,7 @@ if (estConnecte() && aRole('etudiant')) {
             <div class="filter-card sticky-top" style="top: 100px;">
                 <h4 class="filter-title"><i class="fas fa-filter me-2"></i>Filtres</h4>
 
-                <form method="GET" action="">
+                <form method="GET" action="" novalidate>
                     <!-- Recherche -->
                     <div class="mb-3">
                         <label class="form-label">Recherche</label>

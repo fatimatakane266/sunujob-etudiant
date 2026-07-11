@@ -25,6 +25,8 @@ $erreur = '';
 $email = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    exigerCsrfPost('/login.php');
+
     $email = trim($_POST['email'] ?? '');
     $motDePasse = $_POST['mot_de_passe'] ?? '';
 
@@ -75,6 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php endif; ?>
 
             <form method="POST" action="">
+                <?= champCsrf() ?>
                 <div class="mb-3">
                     <label for="email" class="form-label">Adresse email</label>
                     <div class="input-group">

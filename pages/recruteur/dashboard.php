@@ -237,11 +237,11 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
                                         <i class="fas fa-user text-white"></i>
                                     </div>
                                 </div>
-                                <div class="flex-grow-1">
-                                    <div class="fw-semibold"><?= htmlspecialchars($c['etudiant_prenom'] . ' ' . $c['etudiant_nom']) ?></div>
-                                    <small class="text-muted">pour "<?= htmlspecialchars(substr($c['mission_titre'], 0, 25)) ?>..."</small>
+                                <div class="flex-grow-1 text-truncate" style="min-width: 0;">
+                                    <div class="fw-semibold text-truncate"><?= htmlspecialchars($c['etudiant_prenom'] . ' ' . $c['etudiant_nom']) ?></div>
+                                    <small class="text-muted text-truncate d-block">pour "<?= htmlspecialchars(substr($c['mission_titre'], 0, 25)) ?>..."</small>
                                 </div>
-                                <div>
+                                <div class="flex-shrink-0 ms-2">
                                     <span class="badge badge-<?= badgeClassStatutCandidature($c['statut']) ?>">
                                         <?= libelleStatutCandidature($c['statut']) ?>
                                     </span>

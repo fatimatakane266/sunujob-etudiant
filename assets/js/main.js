@@ -36,9 +36,14 @@ function initAutoAlerts() {
     });
 }
 
-/* ===== VALIDATION DES FORMULAIRES ===== */
+/* ===== VALIDATION DES FORMULAIRES =====
+   Uniquement sur les formulaires qui ont réellement des champs requis/contraints
+   (les formulaires simples — filtres GET, boutons d'action supprimer/fermer...
+   n'ont rien à valider et ne doivent jamais être interceptés au submit). */
 function initFormValidation() {
     document.querySelectorAll('form').forEach(form => {
+        if (!form.querySelector('[required], [pattern], [minlength], [min], [max]')) return;
+
         form.addEventListener('submit', function (e) {
             if (!form.checkValidity()) {
                 e.preventDefault();

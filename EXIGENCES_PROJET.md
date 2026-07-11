@@ -227,12 +227,20 @@ sunujob-etudiant/
 ├── pages/
 │   ├── etudiant/
 │   │   ├── profil.php
+│   │   ├── mes-candidatures.php
+│   │   └── dashboard.php
+│   ├── recruteur/
+│   │   ├── profil.php
+│   │   ├── ajouter-mission.php
+│   │   ├── modifier-mission.php
+│   │   ├── mes-missions.php
 │   │   ├── candidatures.php
 │   │   └── dashboard.php
-│   └── recruteur/
-│       ├── profil.php
-│       ├── missions.php
-│       └── dashboard.php
+│   └── admin/                    ← Panneau d'administration (rôle `admin`)
+│       ├── dashboard.php         ← Statistiques globales de la plateforme
+│       ├── users.php             ← Activer / désactiver / supprimer un compte
+│       ├── missions.php          ← Modérer / supprimer une mission
+│       └── categories.php        ← Créer / modifier les catégories
 │
 ├── index.php                     ← Page d'accueil
 ├── login.php                     ← Connexion

@@ -81,23 +81,6 @@ if ($heuresColumn && $heuresColumn->num_rows === 0) {
     $conn->query("ALTER TABLE missions ADD COLUMN heures_travail VARCHAR(100) NULL AFTER jours_travail");
 }
 
-// Table des paiements
-$paiementsTable = $conn->query("SHOW TABLES LIKE 'paiements'");
-if ($paiementsTable && $paiementsTable->num_rows === 0) {
-    $conn->query("CREATE TABLE paiements (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        utilisateur_id INT NOT NULL,
-        montant DECIMAL(10,2) NOT NULL,
-        methode ENUM('orange_money','wave','virement') NOT NULL,
-        destinataire VARCHAR(150) NOT NULL,
-        reference VARCHAR(100) NOT NULL,
-        commentaire TEXT,
-        statut ENUM('en_attente','termine','annule') NOT NULL DEFAULT 'en_attente',
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (utilisateur_id) REFERENCES utilisateurs(id) ON DELETE CASCADE
-    )");
-}
-
 // Statuts candidatures : en_cours et terminee
 $statutCandidatureColumn = $conn->query("SHOW COLUMNS FROM candidatures LIKE 'statut'");
 if ($statutCandidatureColumn && $statutCandidatureColumn->num_rows > 0) {

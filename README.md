@@ -27,13 +27,18 @@ sunujob-etudiant/
 │   │   ├── dashboard.php          # Dashboard étudiant
 │   │   ├── mes-candidatures.php   # Liste candidatures
 │   │   └── profil.php             # Profil étudiant
-│   └── recruteur/
-│       ├── dashboard.php          # Dashboard recruteur
-│       ├── mes-missions.php       # Liste des missions
-│       ├── ajouter-mission.php    # Publier une mission
-│       ├── modifier-mission.php   # Modifier une mission
-│       ├── candidatures.php       # Gérer candidatures
-│       └── profil.php             # Profil recruteur
+│   ├── recruteur/
+│   │   ├── dashboard.php          # Dashboard recruteur
+│   │   ├── mes-missions.php       # Liste des missions
+│   │   ├── ajouter-mission.php    # Publier une mission
+│   │   ├── modifier-mission.php   # Modifier une mission
+│   │   ├── candidatures.php       # Gérer candidatures
+│   │   └── profil.php             # Profil recruteur
+│   └── admin/                     # Panneau d'administration (rôle admin)
+│       ├── dashboard.php          # Statistiques globales
+│       ├── users.php              # Activer / désactiver / supprimer un compte
+│       ├── missions.php           # Modérer / supprimer une mission
+│       └── categories.php         # Gérer les catégories
 │
 ├── uploads/
 │   ├── photos/                    # Photos de profil
@@ -120,9 +125,11 @@ Accédez à `http://localhost/sunujob/index.php`
 - Gestion des candidatures (accepter/refuser)
 
 ### Administrateur
-- Dashboard avec statistiques
-- Notifications automatiques
-- Système de récupération mot de passe
+- Dashboard avec statistiques globales (utilisateurs, missions, candidatures)
+- Gestion des comptes (activer / désactiver / supprimer un utilisateur)
+- Modération des missions (suppression des offres abusives)
+- Gestion des catégories de missions
+- Compte créé automatiquement au premier lancement : `admin@sunujob.sn` / `Admin123!` (à changer en production)
 
 ---
 

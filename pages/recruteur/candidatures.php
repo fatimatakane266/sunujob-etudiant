@@ -203,16 +203,16 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
                     <div class="card-dashboard h-100">
                         <div class="card-header bg-white border-0 py-3">
                             <div class="d-flex justify-content-between align-items-start">
-                                <div class="d-flex align-items-center">
-                                    <div class="rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px; background: var(--gradient-primary);">
+                                <div class="d-flex align-items-center" style="min-width: 0;">
+                                    <div class="rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px; background: var(--gradient-primary); flex-shrink: 0;">
                                         <span class="text-white fw-bold"><?= strtoupper(substr($cand['etudiant_prenom'], 0, 1) . substr($cand['etudiant_nom'], 0, 1)) ?></span>
                                     </div>
-                                    <div>
-                                        <h6 class="mb-0"><?= htmlspecialchars($cand['etudiant_prenom'] . ' ' . $cand['etudiant_nom']) ?></h6>
-                                        <small class="text-muted"><?= htmlspecialchars($cand['etudiant_email']) ?></small>
+                                    <div class="text-truncate" style="min-width: 0;">
+                                        <h6 class="mb-0 text-truncate"><?= htmlspecialchars($cand['etudiant_prenom'] . ' ' . $cand['etudiant_nom']) ?></h6>
+                                        <small class="text-muted text-truncate d-block"><?= htmlspecialchars($cand['etudiant_email']) ?></small>
                                     </div>
                                 </div>
-                                <span class="badge badge-<?= badgeClassStatutCandidature($cand['statut']) ?>">
+                                <span class="badge badge-<?= badgeClassStatutCandidature($cand['statut']) ?> flex-shrink-0 ms-2">
                                     <?= libelleStatutCandidature($cand['statut']) ?>
                                 </span>
                             </div>
@@ -252,20 +252,20 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
                         </div>
                         <?php if ($cand['statut'] === 'en_attente'): ?>
                             <div class="card-footer bg-white border-0 py-3">
-                                <div class="d-flex gap-2">
-                                    <form method="POST" action="" class="flex-grow-1">
+                                <div class="d-flex justify-content-center gap-2 candidature-actions">
+                                    <form method="POST" action="">
                                         <?= champCsrf() ?>
                                         <input type="hidden" name="candidature_id" value="<?= $cand['id'] ?>">
                                         <input type="hidden" name="action" value="acceptee">
-                                        <button type="submit" class="btn btn-success-custom w-100 btn-sm">
+                                        <button type="submit" class="btn btn-success-custom btn-sm">
                                             <i class="fas fa-check me-1"></i>Accepter
                                         </button>
                                     </form>
-                                    <form method="POST" action="" class="flex-grow-1">
+                                    <form method="POST" action="">
                                         <?= champCsrf() ?>
                                         <input type="hidden" name="candidature_id" value="<?= $cand['id'] ?>">
                                         <input type="hidden" name="action" value="refusee">
-                                        <button type="submit" class="btn btn-outline-danger w-100 btn-sm">
+                                        <button type="submit" class="btn btn-outline-danger btn-sm">
                                             <i class="fas fa-times me-1"></i>Refuser
                                         </button>
                                     </form>
@@ -273,22 +273,22 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
                             </div>
                         <?php elseif (in_array($cand['statut'], ['acceptee', 'en_cours'])): ?>
                             <div class="card-footer bg-white border-0 py-3">
-                                <div class="d-flex gap-2">
+                                <div class="d-flex justify-content-center gap-2 candidature-actions">
                                     <?php if ($cand['statut'] === 'acceptee'): ?>
-                                        <form method="POST" action="" class="flex-grow-1">
+                                        <form method="POST" action="">
                                         <?= champCsrf() ?>
                                             <input type="hidden" name="candidature_id" value="<?= $cand['id'] ?>">
                                             <input type="hidden" name="action" value="en_cours">
-                                            <button type="submit" class="btn btn-primary-custom w-100 btn-sm">
+                                            <button type="submit" class="btn btn-primary-custom btn-sm">
                                                 <i class="fas fa-play me-1"></i>En cours
                                             </button>
                                         </form>
                                     <?php endif; ?>
-                                    <form method="POST" action="" class="flex-grow-1">
+                                    <form method="POST" action="">
                                         <?= champCsrf() ?>
                                         <input type="hidden" name="candidature_id" value="<?= $cand['id'] ?>">
                                         <input type="hidden" name="action" value="terminee">
-                                        <button type="submit" class="btn btn-success-custom w-100 btn-sm">
+                                        <button type="submit" class="btn btn-success-custom btn-sm">
                                             <i class="fas fa-flag-checkered me-1"></i>Terminée
                                         </button>
                                     </form>

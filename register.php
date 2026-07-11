@@ -26,6 +26,8 @@ $donnees = [
 ];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    exigerCsrfPost('/register.php');
+
     $donnees = [
         'nom' => trim($_POST['nom'] ?? ''),
         'prenom' => trim($_POST['prenom'] ?? ''),
@@ -111,6 +113,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
 
             <form method="POST" action="">
+                <?= champCsrf() ?>
                 <input type="hidden" name="role" id="role_input" value="<?= htmlspecialchars($donnees['role']) ?>">
 
                 <div class="row">

@@ -13,6 +13,8 @@ $success = '';
 $email = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    exigerCsrfPost('/forgot-password.php');
+
     $email = trim($_POST['email'] ?? '');
 
     if (empty($email)) {
@@ -70,6 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php endif; ?>
 
             <form method="POST" action="">
+                <?= champCsrf() ?>
                 <p class="text-muted mb-4">Entrez votre adresse email. Nous vous enverrons un lien pour réinitialiser votre mot de passe.</p>
 
                 <div class="mb-4">

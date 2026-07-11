@@ -30,6 +30,8 @@ $donnees = [
 $categories = $conn->query("SELECT * FROM categories ORDER BY nom")->fetch_all(MYSQLI_ASSOC);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    exigerCsrfPost('/pages/recruteur/ajouter-mission.php');
+
     $donnees = [
         'titre' => trim($_POST['titre'] ?? ''),
         'description' => trim($_POST['description'] ?? ''),
@@ -141,6 +143,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
                 <?php endif; ?>
 
                 <form method="POST" action="">
+                    <?= champCsrf() ?>
                     <div class="row">
                         <div class="col-lg-8 mb-3">
                             <label for="titre" class="form-label">Titre de la mission *</label>
