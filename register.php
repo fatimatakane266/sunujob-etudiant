@@ -76,8 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="auth-container py-4">
         <div class="auth-card" style="max-width: 550px;">
             <div class="logo">
-                <img src="/assets/images/logo.png" alt="SunuJob Étudiant"
-                     onerror="this.onerror=null; this.src='/assets/images/logo.svg';">
+                <img src="/assets/images/logo.svg" alt="SunuJob Étudiant">
             </div>
 
             <h2>Créer un compte</h2>

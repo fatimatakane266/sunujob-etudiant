@@ -6,13 +6,7 @@
                 <!-- Colonne logo + desc -->
                 <div class="col-lg-4 col-md-12">
                     <div class="footer-logo mb-3">
-                        <?php
-                        $logoPath = file_exists($_SERVER['DOCUMENT_ROOT'] . '/assets/images/logo.png')
-                            ? '/assets/images/logo.png'
-                            : '/assets/images/logo.svg';
-                        ?>
-                        <img src="<?= $logoPath ?>" alt="SunuJob Étudiant" style="height:46px; filter: brightness(0) invert(1);"
-                             onerror="this.onerror=null; this.src='<?= str_replace('.png', '.svg', $logoPath) ?>';">
+                        <img src="/assets/images/logo.svg" alt="SunuJob Étudiant" style="height:46px; filter: brightness(0) invert(1);">
                     </div>
                     <p style="color:rgba(255,255,255,0.7); font-size:0.9rem; line-height:1.7;">
                         Plateforme numérique de missions temporaires pour étudiants sénégalais.

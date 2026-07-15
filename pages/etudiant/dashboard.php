@@ -82,6 +82,11 @@ $missionsRecentes = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 // Profil étudiant
 $profilEtudiant = getProfilEtudiant($etudiantId);
 
+// Quota de candidatures gratuites et abonnement
+$candidaturesUtilisees = compterCandidaturesTotal($etudiantId);
+$candidaturesRestantes = max(0, CANDIDATURES_GRATUITES_MAX - $candidaturesUtilisees);
+$abonnementActif = getAbonnementActif($etudiantId);
+
 $pageActive = 'dashboard';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
 ?>
@@ -171,6 +176,41 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
         </div>
     </div>
 
+    <!-- Missions récentes -->
+    <div class="mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4><i class="fas fa-fire me-2" style="color: var(--color-accent-gold);"></i>Missions récentes</h4>
+            <a href="/missions.php" class="btn btn-outline-custom">Voir toutes les missions</a>
+        </div>
+        <div class="row g-4">
+            <?php foreach ($missionsRecentes as $m): ?>
+                <div class="col-md-6 col-lg-4">
+                    <div class="card-mission">
+                        <div class="card-body">
+                            <span class="badge-categorie mb-2">
+                                <i class="fas <?= htmlspecialchars($m['icone']) ?> me-1"></i>
+                                <?= htmlspecialchars($m['categorie_nom']) ?>
+                            </span>
+                            <h5 class="card-title"><?= htmlspecialchars(substr($m['titre'], 0, 40)) ?>...</h5>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="localisation">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <?= htmlspecialchars($m['localisation']) ?>
+                                </span>
+                                <span class="remuneration">
+                                    <?= $m['remuneration'] ? number_format($m['remuneration'], 0, ',', ' ') . ' FCFA' : 'À négocier' ?>
+                                </span>
+                            </div>
+                            <a href="/mission-detail.php?id=<?= $m['id'] ?>" class="btn btn-primary-custom btn-sm w-100">
+                                Voir et postuler <i class="fas fa-arrow-right ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+
     <div class="row">
         <!-- Dernières candidatures -->
         <div class="col-lg-8 mb-4">
@@ -232,6 +272,28 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
 
         <!-- Profil & Actions rapides -->
         <div class="col-lg-4">
+            <!-- Candidatures gratuites & abonnement -->
+            <div class="card-dashboard p-4 mb-4">
+                <h5 class="mb-3"><i class="fas fa-crown me-2"></i>Mon abonnement</h5>
+                <div class="d-flex justify-content-between mb-2">
+                    <small class="text-muted">Candidatures utilisées</small>
+                    <small class="fw-semibold"><?= $candidaturesUtilisees ?> / <?= CANDIDATURES_GRATUITES_MAX ?></small>
+                </div>
+                <div class="mb-3">
+                    <?php if ($abonnementActif): ?>
+                        <span class="badge badge-<?= badgeClassStatutAbonnement($abonnementActif['statut']) ?>">
+                            <?= htmlspecialchars(getPlanAbonnement($abonnementActif['type_abonnement'])['label'] ?? ucfirst($abonnementActif['type_abonnement'])) ?>
+                        </span>
+                        <div class="small text-muted mt-1">Expire le <?= date('d/m/Y', strtotime($abonnementActif['date_fin'])) ?></div>
+                    <?php else: ?>
+                        <span class="badge badge-fermee">Aucun abonnement actif</span>
+                    <?php endif; ?>
+                </div>
+                <a href="/pages/etudiant/abonnement.php" class="btn btn-cta-etudiant w-100">
+                    <i class="fas fa-mobile-alt me-2"></i>S'abonner
+                </a>
+            </div>
+
             <!-- Complétion du profil -->
             <div class="card-dashboard p-4 mb-4">
                 <h5 class="mb-3"><i class="fas fa-user-cog me-2"></i>Mon profil</h5>
@@ -275,41 +337,6 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
                     </a>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <!-- Missions récentes -->
-    <div class="mt-4">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h4><i class="fas fa-fire me-2" style="color: var(--color-accent-gold);"></i>Missions récentes</h4>
-            <a href="/missions.php" class="btn btn-outline-custom">Voir toutes les missions</a>
-        </div>
-        <div class="row g-4">
-            <?php foreach ($missionsRecentes as $m): ?>
-                <div class="col-md-6 col-lg-4">
-                    <div class="card-mission">
-                        <div class="card-body">
-                            <span class="badge-categorie mb-2">
-                                <i class="fas <?= htmlspecialchars($m['icone']) ?> me-1"></i>
-                                <?= htmlspecialchars($m['categorie_nom']) ?>
-                            </span>
-                            <h5 class="card-title"><?= htmlspecialchars(substr($m['titre'], 0, 40)) ?>...</h5>
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="localisation">
-                                    <i class="fas fa-map-marker-alt"></i>
-                                    <?= htmlspecialchars($m['localisation']) ?>
-                                </span>
-                                <span class="remuneration">
-                                    <?= $m['remuneration'] ? number_format($m['remuneration'], 0, ',', ' ') . ' FCFA' : 'À négocier' ?>
-                                </span>
-                            </div>
-                            <a href="/mission-detail.php?id=<?= $m['id'] ?>" class="btn btn-primary-custom btn-sm w-100">
-                                Voir et postuler <i class="fas fa-arrow-right ms-1"></i>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            <?php endforeach; ?>
         </div>
     </div>
 </div>

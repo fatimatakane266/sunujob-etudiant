@@ -54,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="auth-container">
         <div class="auth-card">
             <div class="logo">
-                <img src="/assets/images/logo.png" alt="SunuJob Étudiant">
+                <img src="/assets/images/logo.svg" alt="SunuJob Étudiant">
             </div>
 
             <h2>Nouveau mot de passe</h2>

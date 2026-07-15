@@ -154,10 +154,14 @@ $logoPath = '/assets/images/logo.svg';
                                 <li><a class="dropdown-item" href="<?= $profilUrl ?>"><i class="fas fa-user me-2 text-muted"></i>Mon profil</a></li>
                                 <li><a class="dropdown-item" href="<?= $candUrl ?>"><i class="fas fa-list me-2 text-muted"></i>
                                     <?= $user['role'] === 'etudiant' ? 'Mes candidatures' : 'Candidatures reçues' ?></a></li>
+                                <?php if ($user['role'] === 'etudiant'): ?>
+                                    <li><a class="dropdown-item" href="/pages/etudiant/abonnement.php"><i class="fas fa-crown me-2 text-muted"></i>Abonnement</a></li>
+                                <?php endif; ?>
                             <?php else: ?>
                                 <li><a class="dropdown-item" href="/pages/admin/users.php"><i class="fas fa-users-cog me-2 text-muted"></i>Gérer les utilisateurs</a></li>
                                 <li><a class="dropdown-item" href="/pages/admin/missions.php"><i class="fas fa-briefcase me-2 text-muted"></i>Gérer les missions</a></li>
                                 <li><a class="dropdown-item" href="/pages/admin/categories.php"><i class="fas fa-tags me-2 text-muted"></i>Gérer les catégories</a></li>
+                                <li><a class="dropdown-item" href="/pages/admin/abonnements.php"><i class="fas fa-crown me-2 text-muted"></i>Abonnements</a></li>
                             <?php endif; ?>
                             <li><a class="dropdown-item" href="/notifications.php"><i class="fas fa-bell me-2 text-muted"></i>Notifications
                                 <?php if ($nbNotifs > 0): ?>

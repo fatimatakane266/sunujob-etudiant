@@ -67,7 +67,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && estConnecte() && aRole('etudiant') 
 
     $messageMotivation = trim($_POST['message_motivation'] ?? '');
 
-    if (!missionEstOuverte($mission)) {
+    if (!peutPostuler($_SESSION['user_id'])) {
+        $erreurCandidature = "Vous avez utilisé vos 2 candidatures gratuites. Pour continuer à postuler, veuillez souscrire à un abonnement.";
+    } elseif (!missionEstOuverte($mission)) {
         $erreurCandidature = "Cette mission n'accepte plus de candidatures.";
     } elseif (empty($messageMotivation)) {
         $erreurCandidature = "Veuillez rédiger un message de motivation.";
@@ -255,6 +257,16 @@ require_once 'includes/header.php';
                             <hr>
                             <a href="/pages/etudiant/mes-candidatures.php" class="btn btn-outline-custom w-100">
                                 Voir mes candidatures
+                            </a>
+                        </div>
+                    <?php elseif (!peutPostuler($_SESSION['user_id'])): ?>
+                        <div class="text-center">
+                            <p class="mb-3"><i class="fas fa-lock text-muted fa-2x mb-3"></i></p>
+                            <div class="alert alert-danger-custom text-start mb-3">
+                                Vous avez utilisé vos 2 candidatures gratuites. Pour continuer à postuler, veuillez souscrire à un abonnement.
+                            </div>
+                            <a href="/pages/etudiant/abonnement.php" class="btn btn-cta-etudiant w-100">
+                                <i class="fas fa-mobile-alt me-2"></i>S'abonner avec Wave
                             </a>
                         </div>
                     <?php else: ?>

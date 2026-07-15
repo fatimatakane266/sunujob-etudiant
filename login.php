@@ -64,8 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="auth-container">
         <div class="auth-card">
             <div class="logo">
-                <img src="/assets/images/logo.png" alt="SunuJob Étudiant"
-                     onerror="this.onerror=null; this.src='/assets/images/logo.svg';">
+                <img src="/assets/images/logo.svg" alt="SunuJob Étudiant">
             </div>
 
             <h2>Connexion</h2>

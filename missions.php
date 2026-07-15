@@ -63,6 +63,15 @@ if ($remunerationMax !== null) {
 
 $whereClause = implode(' AND ', $where);
 
+// Tri
+$triOptions = [
+    'recent' => 'm.created_at DESC',
+    'remuneration_desc' => 'm.remuneration IS NULL, m.remuneration DESC',
+    'remuneration_asc' => 'm.remuneration IS NULL, m.remuneration ASC',
+];
+$tri = isset($_GET['tri']) && isset($triOptions[$_GET['tri']]) ? $_GET['tri'] : 'recent';
+$orderBy = $triOptions[$tri];
+
 // Pagination
 $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
 $perPage = 9;
@@ -88,7 +97,7 @@ $sql = "
     JOIN utilisateurs u ON m.recruteur_id = u.id
     LEFT JOIN profils_recruteurs pr ON pr.utilisateur_id = u.id
     WHERE $whereClause
-    ORDER BY m.created_at DESC
+    ORDER BY $orderBy
     LIMIT ? OFFSET ?
 ";
 
@@ -212,15 +221,28 @@ if (estConnecte() && aRole('etudiant')) {
         <!-- Liste des missions -->
         <div class="col-lg-9">
             <!-- Résultats -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
                 <p class="text-muted mb-0">
                     <strong><?= $totalMissions ?></strong> mission<?= $totalMissions > 1 ? 's' : '' ?> trouvée<?= $totalMissions > 1 ? 's' : '' ?>
                 </p>
-                <?php if (estConnecte() && aRole('recruteur')): ?>
-                    <a href="/pages/recruteur/ajouter-mission.php" class="btn btn-cta">
-                        <i class="fas fa-plus me-2"></i>Publier une mission
-                    </a>
-                <?php endif; ?>
+                <div class="d-flex align-items-center gap-2">
+                    <label for="tri" class="form-label mb-0 text-muted small">Trier par</label>
+                    <select class="form-select form-select-sm" id="tri" style="width: auto;" onchange="
+                        const params = new URLSearchParams(window.location.search);
+                        params.set('tri', this.value);
+                        params.delete('page');
+                        window.location.search = params.toString();
+                    ">
+                        <option value="recent" <?= $tri === 'recent' ? 'selected' : '' ?>>Plus récent</option>
+                        <option value="remuneration_desc" <?= $tri === 'remuneration_desc' ? 'selected' : '' ?>>Rémunération décroissante</option>
+                        <option value="remuneration_asc" <?= $tri === 'remuneration_asc' ? 'selected' : '' ?>>Rémunération croissante</option>
+                    </select>
+                    <?php if (estConnecte() && aRole('recruteur')): ?>
+                        <a href="/pages/recruteur/ajouter-mission.php" class="btn btn-cta">
+                            <i class="fas fa-plus me-2"></i>Publier une mission
+                        </a>
+                    <?php endif; ?>
+                </div>
             </div>
 
             <?php if (empty($missions)): ?>

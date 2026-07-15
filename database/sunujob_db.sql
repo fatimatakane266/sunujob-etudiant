@@ -131,6 +131,60 @@ CREATE TABLE notifications (
 );
 
 -- ============================================
+-- TABLE abonnements
+-- ============================================
+DROP TABLE IF EXISTS abonnements;
+CREATE TABLE abonnements (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    utilisateur_id INT NOT NULL,
+    type_abonnement ENUM('mensuel','trimestriel','annuel') NOT NULL,
+    prix DECIMAL(10,2) NOT NULL,
+    date_debut DATE NOT NULL,
+    date_fin DATE NOT NULL,
+    statut ENUM('actif','expire','annule') NOT NULL DEFAULT 'actif',
+    mode_paiement VARCHAR(50) NOT NULL DEFAULT 'wave',
+    reference_paiement VARCHAR(150),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (utilisateur_id) REFERENCES utilisateurs(id) ON DELETE CASCADE,
+    INDEX idx_utilisateur_statut (utilisateur_id, statut)
+);
+
+-- ============================================
+-- TABLE paiements
+-- ============================================
+DROP TABLE IF EXISTS paiements;
+CREATE TABLE paiements (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    utilisateur_id INT NOT NULL,
+    abonnement_id INT NULL,
+    montant DECIMAL(10,2) NOT NULL,
+    devise VARCHAR(10) NOT NULL DEFAULT 'XOF',
+    moyen_paiement VARCHAR(50) NOT NULL DEFAULT 'wave',
+    reference_wave VARCHAR(150),
+    transaction_id VARCHAR(150),
+    statut ENUM('en_attente','paye','echoue') NOT NULL DEFAULT 'en_attente',
+    date_paiement DATETIME NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (utilisateur_id) REFERENCES utilisateurs(id) ON DELETE CASCADE,
+    FOREIGN KEY (abonnement_id) REFERENCES abonnements(id) ON DELETE SET NULL,
+    INDEX idx_statut (statut),
+    INDEX idx_reference_wave (reference_wave)
+);
+
+-- ============================================
+-- TABLE parametres
+-- ============================================
+DROP TABLE IF EXISTS parametres;
+CREATE TABLE parametres (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    cle VARCHAR(100) NOT NULL UNIQUE,
+    valeur TEXT NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- ============================================
 -- DONNÉES INITIALES
 -- ============================================
 

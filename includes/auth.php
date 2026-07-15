@@ -9,6 +9,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/abonnements.php';
 
 /**
  * Vérifier si l'utilisateur est connecté
@@ -487,5 +488,48 @@ function validerFichierUpload($file, array $extensionsAutorisees, $tailleMaxOcte
         return "$libelle : format non autorisé.";
     }
     return null;
+}
+
+/**
+ * Changer le mot de passe d'un utilisateur connecté
+ * @param int $userId
+ * @param string $mdpActuel
+ * @param string $nouveauMdp
+ * @param string $confirmationMdp
+ * @return array ['succes' => bool, 'erreurs' => string[]]
+ */
+function changerMotDePasse($userId, $mdpActuel, $nouveauMdp, $confirmationMdp) {
+    global $conn;
+
+    $erreurs = [];
+
+    $stmt = $conn->prepare("SELECT mot_de_passe FROM utilisateurs WHERE id = ?");
+    $stmt->bind_param("i", $userId);
+    $stmt->execute();
+    $user = $stmt->get_result()->fetch_assoc();
+
+    if (!$user || !password_verify($mdpActuel, $user['mot_de_passe'])) {
+        $erreurs[] = "Le mot de passe actuel est incorrect.";
+    }
+    if (strlen($nouveauMdp) < 6) {
+        $erreurs[] = "Le nouveau mot de passe doit contenir au moins 6 caractères.";
+    }
+    if ($nouveauMdp !== $confirmationMdp) {
+        $erreurs[] = "Les nouveaux mots de passe ne correspondent pas.";
+    }
+
+    if (!empty($erreurs)) {
+        return ['succes' => false, 'erreurs' => $erreurs];
+    }
+
+    $hash = password_hash($nouveauMdp, PASSWORD_BCRYPT);
+    $stmt = $conn->prepare("UPDATE utilisateurs SET mot_de_passe = ? WHERE id = ?");
+    $stmt->bind_param("si", $hash, $userId);
+
+    if (!$stmt->execute()) {
+        return ['succes' => false, 'erreurs' => ["Erreur lors de la mise à jour du mot de passe."]];
+    }
+
+    return ['succes' => true, 'erreurs' => []];
 }
 ?>

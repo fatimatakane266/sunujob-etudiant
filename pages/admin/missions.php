@@ -60,6 +60,20 @@ $whereClause = $where ? ('WHERE ' . implode(' AND ', $where)) : '';
 
 $categories = $conn->query("SELECT * FROM categories ORDER BY nom")->fetch_all(MYSQLI_ASSOC);
 
+// Pagination
+$page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
+$perPage = 20;
+$offset = ($page - 1) * $perPage;
+
+$countQuery = "SELECT COUNT(*) as total FROM missions m $whereClause";
+$stmt = $conn->prepare($countQuery);
+if ($params) {
+    $stmt->bind_param($types, ...$params);
+}
+$stmt->execute();
+$totalMissions = (int)$stmt->get_result()->fetch_assoc()['total'];
+$totalPages = max(1, (int)ceil($totalMissions / $perPage));
+
 $missions = [];
 $query = "SELECT m.id, m.titre, m.localisation, m.statut, m.created_at, u.nom AS recruteur_nom, u.prenom AS recruteur_prenom, c.nom AS categorie_nom, COUNT(ca.id) AS candidatures_count
           FROM missions m
@@ -68,11 +82,12 @@ $query = "SELECT m.id, m.titre, m.localisation, m.statut, m.created_at, u.nom AS
           LEFT JOIN candidatures ca ON ca.mission_id = m.id
           $whereClause
           GROUP BY m.id
-          ORDER BY m.created_at DESC";
+          ORDER BY m.created_at DESC
+          LIMIT ? OFFSET ?";
 $stmt = $conn->prepare($query);
-if ($params) {
-    $stmt->bind_param($types, ...$params);
-}
+$typesPagination = $types . 'ii';
+$paramsPagination = array_merge($params, [$perPage, $offset]);
+$stmt->bind_param($typesPagination, ...$paramsPagination);
 $stmt->execute();
 $missions = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
@@ -126,7 +141,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
         </div>
     </form>
 
-    <p class="text-muted mb-3"><strong><?= count($missions) ?></strong> mission(s) trouvée(s)</p>
+    <p class="text-muted mb-3"><strong><?= $totalMissions ?></strong> mission(s) trouvée(s)</p>
 
     <div class="card-dashboard">
         <div class="card-body p-3">
@@ -176,6 +191,28 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
             </div>
         </div>
     </div>
+
+    <?php if ($totalPages > 1): ?>
+        <nav class="mt-4">
+            <ul class="pagination justify-content-center">
+                <?php if ($page > 1): ?>
+                    <li class="page-item">
+                        <a class="page-link" href="?<?= http_build_query(array_merge($_GET, ['page' => $page - 1])) ?>"><i class="fas fa-chevron-left"></i></a>
+                    </li>
+                <?php endif; ?>
+                <?php for ($i = max(1, $page - 2); $i <= min($totalPages, $page + 2); $i++): ?>
+                    <li class="page-item <?= $i === $page ? 'active' : '' ?>">
+                        <a class="page-link" href="?<?= http_build_query(array_merge($_GET, ['page' => $i])) ?>"><?= $i ?></a>
+                    </li>
+                <?php endfor; ?>
+                <?php if ($page < $totalPages): ?>
+                    <li class="page-item">
+                        <a class="page-link" href="?<?= http_build_query(array_merge($_GET, ['page' => $page + 1])) ?>"><i class="fas fa-chevron-right"></i></a>
+                    </li>
+                <?php endif; ?>
+            </ul>
+        </nav>
+    <?php endif; ?>
 </div>
 
 <?php require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php';

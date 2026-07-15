@@ -17,9 +17,29 @@ $profilRecruteur = getProfilRecruteur($recruteurId);
 
 $erreurs = [];
 $success = false;
+$erreursMdp = [];
+$successMdp = false;
 
-// Traitement du formulaire
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+// Traitement du changement de mot de passe
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'changer_mot_de_passe') {
+    exigerCsrfPost('/pages/recruteur/profil.php');
+
+    $resultMdp = changerMotDePasse(
+        $recruteurId,
+        $_POST['mot_de_passe_actuel'] ?? '',
+        $_POST['nouveau_mot_de_passe'] ?? '',
+        $_POST['confirmation_mot_de_passe'] ?? ''
+    );
+
+    if ($resultMdp['succes']) {
+        $successMdp = true;
+    } else {
+        $erreursMdp = $resultMdp['erreurs'];
+    }
+}
+
+// Traitement du formulaire de profil
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') !== 'changer_mot_de_passe') {
     exigerCsrfPost('/pages/recruteur/profil.php');
 
     $donnees = [
@@ -208,6 +228,48 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
                             Annuler
                         </a>
                     </div>
+                </form>
+            </div>
+
+            <div class="mission-detail-card mt-4">
+                <h5 class="mb-3"><i class="fas fa-lock me-2"></i>Changer le mot de passe</h5>
+
+                <?php if ($successMdp): ?>
+                    <div class="alert alert-success-custom mb-4" role="alert">
+                        <i class="fas fa-check-circle me-2"></i>Mot de passe mis à jour avec succès !
+                    </div>
+                <?php endif; ?>
+
+                <?php if (!empty($erreursMdp)): ?>
+                    <div class="alert alert-danger-custom mb-4" role="alert">
+                        <ul class="mb-0 ps-3">
+                            <?php foreach ($erreursMdp as $erreur): ?>
+                                <li><?= htmlspecialchars($erreur) ?></li>
+                            <?php endforeach; ?>
+                        </ul>
+                    </div>
+                <?php endif; ?>
+
+                <form method="POST" action="">
+                    <?= champCsrf() ?>
+                    <input type="hidden" name="action" value="changer_mot_de_passe">
+                    <div class="mb-3">
+                        <label for="mot_de_passe_actuel" class="form-label">Mot de passe actuel</label>
+                        <input type="password" class="form-control" id="mot_de_passe_actuel" name="mot_de_passe_actuel" required>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="nouveau_mot_de_passe" class="form-label">Nouveau mot de passe</label>
+                            <input type="password" class="form-control" id="nouveau_mot_de_passe" name="nouveau_mot_de_passe" minlength="6" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="confirmation_mot_de_passe" class="form-label">Confirmer le mot de passe</label>
+                            <input type="password" class="form-control" id="confirmation_mot_de_passe" name="confirmation_mot_de_passe" minlength="6" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary-custom">
+                        <i class="fas fa-key me-2"></i>Mettre à jour le mot de passe
+                    </button>
                 </form>
             </div>
         </div>

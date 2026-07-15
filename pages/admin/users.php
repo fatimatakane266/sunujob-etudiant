@@ -60,11 +60,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['use
     exit;
 }
 
+$page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
+$perPage = 20;
+$offset = ($page - 1) * $perPage;
+
+$totalUsers = (int)$conn->query("SELECT COUNT(*) as total FROM utilisateurs")->fetch_assoc()['total'];
+$totalPages = max(1, (int)ceil($totalUsers / $perPage));
+
 $users = [];
-$result = $conn->query("SELECT id, nom, prenom, email, role, statut, created_at FROM utilisateurs ORDER BY created_at DESC");
-if ($result) {
-    $users = $result->fetch_all(MYSQLI_ASSOC);
-}
+$stmt = $conn->prepare("SELECT id, nom, prenom, email, role, statut, created_at FROM utilisateurs ORDER BY created_at DESC LIMIT ? OFFSET ?");
+$stmt->bind_param("ii", $perPage, $offset);
+$stmt->execute();
+$users = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
 $pageActive = 'admin';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
@@ -83,6 +90,8 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
 </div>
 
 <div class="container py-4">
+    <p class="text-muted mb-3"><strong><?= $totalUsers ?></strong> utilisateur(s) au total</p>
+
     <div class="card-dashboard">
         <div class="card-body p-3">
             <div class="table-responsive">
@@ -140,6 +149,28 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
             </div>
         </div>
     </div>
+
+    <?php if ($totalPages > 1): ?>
+        <nav class="mt-4">
+            <ul class="pagination justify-content-center">
+                <?php if ($page > 1): ?>
+                    <li class="page-item">
+                        <a class="page-link" href="?<?= http_build_query(array_merge($_GET, ['page' => $page - 1])) ?>"><i class="fas fa-chevron-left"></i></a>
+                    </li>
+                <?php endif; ?>
+                <?php for ($i = max(1, $page - 2); $i <= min($totalPages, $page + 2); $i++): ?>
+                    <li class="page-item <?= $i === $page ? 'active' : '' ?>">
+                        <a class="page-link" href="?<?= http_build_query(array_merge($_GET, ['page' => $i])) ?>"><?= $i ?></a>
+                    </li>
+                <?php endfor; ?>
+                <?php if ($page < $totalPages): ?>
+                    <li class="page-item">
+                        <a class="page-link" href="?<?= http_build_query(array_merge($_GET, ['page' => $page + 1])) ?>"><i class="fas fa-chevron-right"></i></a>
+                    </li>
+                <?php endif; ?>
+            </ul>
+        </nav>
+    <?php endif; ?>
 </div>
 
 <?php require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php';
